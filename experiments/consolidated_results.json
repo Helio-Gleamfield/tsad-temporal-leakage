@@ -1,0 +1,83 @@
+{
+  "session": "2026-07-29",
+  "note": "All experiments use STRICT TEMPORAL SPLIT unless noted otherwise",
+  "summary": "Completed E1, E2 (partial), E4, E5 (framework). Paper draft written. E3 (CoT VLM online) script ready but not executed (API calls required).",
+
+  "E1_VLM_ABLATION": {
+    "status": "COMPLETE",
+    "key_finding": "VLM features contribute ZERO to detection. Enhanced statistical features are the sole driver (+0.0916 AUC)",
+    "results": {
+      "A_baseline_6d_stats": {"auc": 0.4967, "interpretation": "Random performance — 6D stats insufficient"},
+      "B_enhanced_12d_stats": {"auc": 0.5883, "interpretation": "Enhanced features give ALL the gain (+0.0916)"},
+      "C_random_vlm_features": {"auc": 0.5883, "interpretation": "Adding random noise as VLM features: zero effect"},
+      "D_recon_loss": {"auc": 0.5883, "interpretation": "Reconstruction loss: zero effect"}
+    },
+    "ablation_deltas": {
+      "enhanced_stats_6d_to_12d": 0.0916,
+      "random_vlm_features": 0.0000,
+      "reconstruction_loss": 0.0000
+    }
+  },
+
+  "E2_MULTIDATASET_LEAKAGE": {
+    "status": "COMPLETE (partial — 2/3 datasets; MSL failed due to insufficient samples)",
+    "key_finding": "Temporal leakage severity depends on dataset characteristics. SWaT: +0.26, TEP: +0.03",
+    "results": {
+      "SWaT": {
+        "random_auc": 0.7263, "temporal_auc": 0.4688, "leakage_gap": 0.2575,
+        "zscore_temporal_auc": 0.4325, "isolforest_temporal_auc": 0.4569,
+        "interpretation": "Massive leakage. Under temporal split, LSTM-AE is barely above random. Z-score is competitive."
+      },
+      "TEP": {
+        "random_auc": 0.8647, "temporal_auc": 0.8389, "leakage_gap": 0.0258,
+        "zscore_temporal_auc": 0.8428, "isolforest_temporal_auc": 0.7515,
+        "interpretation": "Minimal leakage. High anomaly density (67%) and long fault segments minimize window overlap effects. Z-score BEATS LSTM-AE!"
+      }
+    },
+    "average_leakage_gap": 0.1416
+  },
+
+  "E3_COT_PIPELINE": {
+    "status": "SCRIPT READY — NOT EXECUTED",
+    "reason": "Requires Alibaba Cloud DashScope API calls (50 windows × qwen-vl-max). Script at scripts/experiment_e3_cot_pipeline.py is complete and tested in offline mode.",
+    "note": "Run with: python scripts/experiment_e3_cot_pipeline.py --n_windows 50 --model qwen-vl-max"
+  },
+
+  "E4_CAUSAL_NOPRIOR": {
+    "status": "COMPLETE",
+    "key_finding": "Domain prior improves causal discovery F1 by 25% (0.50→0.63). PC alone achieves 0.73 recall — it does real discovery work.",
+    "results": {
+      "correlation_baseline": {"edges": "0/26", "shd": 528, "f1": 0.000, "time_s": 0.003},
+      "pc_no_prior_12vars": {"edges": "50/26", "shd": 38, "precision": 0.380, "recall": 0.731, "f1": 0.500, "time_s": 2.4},
+      "pc_with_prior_12vars": {"edges": "57/26", "shd": 31, "precision": 0.456, "recall": 1.000, "f1": 0.627, "time_s": 1.8},
+      "pid_gt_12vars": {"edges": "26/26", "shd": 0, "f1": 1.000, "time_s": 0.0}
+    },
+    "deltas": {
+      "shd_improvement_with_prior": 7,
+      "f1_improvement_with_prior": 0.1265
+    },
+    "note": "Full 51-var PC was attempted but terminated — O(d²·2^depth) was too slow (>10min, only reached depth 4)."
+  },
+
+  "E5_HUMAN_EVALUATION": {
+    "status": "FRAMEWORK COMPLETE — NOT CONDUCTED",
+    "deliverables": "experiments/e5_human_evaluation_rubric.md — 5-dimension Likert rubric, scoring templates, analysis plan",
+    "note": "Requires E3 outputs as source material. Schedule after E3 execution."
+  },
+
+  "PAPER": {
+    "status": "FIRST DRAFT COMPLETE",
+    "file": "paper/manuscript_draft.md",
+    "format": "Markdown (ready for LaTeX conversion via elsarticle template)",
+    "structure": "Title + Highlights + Abstract + 7 sections + 29 references + Appendix A",
+    "next_steps": [
+      "Convert to LaTeX (elsarticle document class)",
+      "Add actual figures (leakage bar chart, ablation waterfall, causal F1 comparison)",
+      "Run E3 to get real CoT examples for Section 4.3",
+      "Fill in author list and acknowledgments",
+      "English polishing (use scientific-writing skill)",
+      "Add data availability statement",
+      "Submit cover letter"
+    ]
+  }
+}

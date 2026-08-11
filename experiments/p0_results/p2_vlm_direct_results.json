@@ -1,0 +1,715 @@
+{
+  "experiment": "P2_VLM_Direct_Vision",
+  "model": "qwen3-vl-plus",
+  "prompt_type": "cot",
+  "n_windows": 100,
+  "n_anomalous": 50,
+  "zscore_auc": 0.61,
+  "vlm_accuracy": 0.57,
+  "vlm_precision": 0.5636363636363636,
+  "vlm_recall": 0.62,
+  "vlm_f1": 0.5904761904761905,
+  "vlm_valid_rate": 1.0,
+  "per_window_results": [
+    {
+      "idx": 0,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or step-like behavior within expected ranges, with no sudden spikes, sustained level shifts, or prop"
+    },
+    {
+      "idx": 1,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensors exhibit stable, bounded oscillations or step-like behavior within expected ranges, with no sudden spikes, drops, or propagating deviations—consi"
+    },
+    {
+      "idx": 2,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: The plot shows three stable, bounded sensor groups with consistent periodic oscillations (upper blue), step-like behavior (middle light blue), and steady ne"
+    },
+    {
+      "idx": 3,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensors exhibit stable, bounded oscillations or steady-state behavior without sudden spikes, level shifts, or propagation of deviations—consistent with "
+    },
+    {
+      "idx": 4,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop occurs around time step 235–240 across multiple sensors (especially the teal and orange lines), with the teal sensor dropping fi"
+    },
+    {
+      "idx": 5,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~2–4 units) occurs around time step 105–110 across multiple sensors (especially prominent in teal, orange, and light blue), fol"
+    },
+    {
+      "idx": 6,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A clear, sustained upward trend begins around time step 50 in the orange sensor (starting near −0.45 and rising to ~0.6 by step 256), while most other sens"
+    },
+    {
+      "idx": 7,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single orange sensor exhibits a sustained, monotonic upward drift from ~0.1 to ~1.2 over 256 time steps—unlike all other sensors, which remain stable or "
+    },
+    {
+      "idx": 8,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange line shows a sustained, monotonic upward trend (from ~0.6 to ~1.7) over 256 time steps while all other sensors remain stable or exhibit only min"
+    },
+    {
+      "idx": 9,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: At time step ~150, a sharp vertical drop (≈−3.5 units) occurs in one sensor (teal), immediately followed by a rapid downward shift in multiple other sensor"
+    },
+    {
+      "idx": 10,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, large-magnitude drop (≈−3.5 to −4) in the green sensor at time step ~20 propagates to the blue sensor (drop to ~−1.5) and then stabilizes into a n"
+    },
+    {
+      "idx": 11,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All 51 sensors exhibit stable, near-constant values over 256 time steps with only minor, brief, and non-propagating fluctuations (e.g., small blips around s"
+    },
+    {
+      "idx": 12,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, large-magnitude drop (to −4) in the green sensor at time step ~198–200 precedes a rapid recovery and correlated transient spikes in multiple other"
+    },
+    {
+      "idx": 13,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: Two sharp, synchronized step-down anomalies at ~t=65 and ~t=160 in the green sensor (value dropping to −4) precede and correlate with transient oscillation"
+    },
+    {
+      "idx": 14,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, large-magnitude drop (to −4) in the teal sensor around time step 40 precedes and likely triggers correlated transient responses in multiple other "
+    },
+    {
+      "idx": 15,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, level shifts, or propagation of deviations—consistent"
+    },
+    {
+      "idx": 16,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, level shifts, or propagation of deviations—consistent"
+    },
+    {
+      "idx": 17,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations around fixed baselines with no sudden spikes, level shifts, or propagating deviations—consistent wit"
+    },
+    {
+      "idx": 18,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or constant behavior with no sudden spikes, drops, level shifts, or propagation of deviations—consis"
+    },
+    {
+      "idx": 19,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, large-magnitude drop (from ~0.6 to ~−4) in the green sensor at time step ~245 is followed immediately by a correlated drop in the blue sensor, ind"
+    },
+    {
+      "idx": 20,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, large-magnitude drop (~3.5 units) in the green sensor around time step 120 precedes a cascade of synchronized drops in blue and light-blue sensors"
+    },
+    {
+      "idx": 21,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, isolated drop (~1.5 units) occurs at time step 0 in the lowest blue sensor (value ~−1.5), while all other 50 sensors remain stable and smooth—indi"
+    },
+    {
+      "idx": 22,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single sensor (magenta line) exhibits a sharp, sustained step increase from near 0 to ~200,000 at time step ~225, while all other sensors remain flat nea"
+    },
+    {
+      "idx": 23,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single sensor (magenta) exhibits an abrupt, massive step increase (~200,000 units) at time step 100 with no corresponding change in the other sensor (gre"
+    },
+    {
+      "idx": 24,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: Both sensor lines are perfectly flat and stable across all 256 time steps—green near zero and pink near 200,000—with no variation, spikes, shifts, or oscill"
+    },
+    {
+      "idx": 25,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: Both sensor lines are perfectly flat and constant across all 256 time steps—no variation, spikes, shifts, or oscillations—indicating stable, nominal operati"
+    },
+    {
+      "idx": 26,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, instantaneous drop from ~200,000 to near 0 occurs at time step ~156 in the pink sensor, while the green sensor remains flat at 0—indicating a sudd"
+    },
+    {
+      "idx": 27,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single sensor (magenta) exhibits a sharp, sustained drop from ~200,000 to near 0 at time step ~40, while all other sensors remain flat near 0—indicating "
+    },
+    {
+      "idx": 28,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or near-constant behavior with no sudden spikes, level shifts, or propagating deviations—consistent "
+    },
+    {
+      "idx": 29,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations around consistent baselines with no sudden spikes, level shifts, or propagation of deviations—indica"
+    },
+    {
+      "idx": 30,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, or propagating deviations—consistent with normal oper"
+    },
+    {
+      "idx": 31,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, level shifts, or propagation of deviations—consistent"
+    },
+    {
+      "idx": 32,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, or propagating deviations—consistent with normal oper"
+    },
+    {
+      "idx": 33,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady offsets with no sudden spikes, level shifts, or propagating deviations—consistent with nor"
+    },
+    {
+      "idx": 34,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, or propagating deviations—consistent with normal oper"
+    },
+    {
+      "idx": 35,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: At time step ~200, a sharp vertical drop (to −4) in the green sensor occurs first, followed immediately by large negative excursions in orange and cyan sen"
+    },
+    {
+      "idx": 36,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−4 to −2) occurs around time step 75–80 in multiple sensors (notably teal, orange, and blue), with the teal sensor leading the"
+    },
+    {
+      "idx": 37,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange line shows a sustained, monotonic upward drift starting around time step 75 and accelerating after step 175—unlike the other sensors, which rema"
+    },
+    {
+      "idx": 38,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A clear, monotonic upward ramp (orange line) begins at ~t=50 and steadily increases to +1.6 by t=256, while other sensors remain stable or oscillate mildly"
+    },
+    {
+      "idx": 39,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: At time step ~155, a sharp vertical drop (to ~−3.8) in the green sensor occurs first, triggering an immediate sharp dip in the blue sensor (~−1.5), followe"
+    },
+    {
+      "idx": 40,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop across multiple sensors (especially the green and blue lines) around time step 30–40—reaching −4 for green and −1.5 for blue—fol"
+    },
+    {
+      "idx": 41,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single sensor (orange line) exhibits a sharp, isolated spike from ~2.6 to ~2.9 at time step ~30, followed by an immediate drop to ~1.35 and stabilization"
+    },
+    {
+      "idx": 42,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All 51 sensors exhibit stable, piecewise-constant behavior with no spikes, drops, level shifts, or oscillations—only minor step-like transitions that are co"
+    },
+    {
+      "idx": 43,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All 51 sensors exhibit stable, near-constant values over 256 time steps with only minor, bounded stepwise fluctuations (e.g., light blue line around t=80 an"
+    },
+    {
+      "idx": 44,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, large-magnitude drop (~−3.5 units) in the teal sensor at time step ~155 precedes and triggers correlated transient spikes and level shifts in mult"
+    },
+    {
+      "idx": 45,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−4 to −2) occurs in multiple sensors (notably the teal and orange lines) around time step 30–40, followed by a rapid recovery "
+    },
+    {
+      "idx": 46,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange line exhibits a sustained, monotonic decline from ~1.0 to ~−0.05 over 256 time steps—unlike all other sensors, which remain stable near constant"
+    },
+    {
+      "idx": 47,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange line exhibits a sustained, monotonic decline from ~0.45 to −0.6 over 256 time steps—unlike the stable or mildly fluctuating other sensors—indica"
+    },
+    {
+      "idx": 48,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~2.5 units) in the green sensor at time step ~180 precedes a rapid spike and oscillation in the blue sensor (~190–210), indicat"
+    },
+    {
+      "idx": 49,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~2.5 units) occurs at time step ~55 in multiple sensors (especially the green and cyan lines), followed by a rapid recovery and"
+    },
+    {
+      "idx": 50,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations around consistent mean levels with no sudden spikes, drops, level shifts, or propagation of deviatio"
+    },
+    {
+      "idx": 51,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All 51 sensors exhibit stable, bounded oscillations around consistent baselines with no sudden spikes, level shifts, or propagating deviations—patterns appe"
+    },
+    {
+      "idx": 52,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations around consistent baselines with no sudden spikes, level shifts, or propagating deviations—patterns "
+    },
+    {
+      "idx": 53,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels without sudden spikes, drops, level shifts, or propagation of deviations—consistent"
+    },
+    {
+      "idx": 54,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, or propagating deviations—consistent with normal oper"
+    },
+    {
+      "idx": 55,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: At time step ~195, one sensor (light blue line) exhibits a sharp, sustained drop from ~−0.5 to ~−9, while all other sensors remain stable—indicating a clea"
+    },
+    {
+      "idx": 56,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single sensor (light blue line) exhibits a sharp, permanent step drop of ~7 units at time step ~65, while all other 50 sensors remain stable and tightly "
+    },
+    {
+      "idx": 57,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single sensor (light blue line) exhibits a sharp, sustained drop of ~7 units at time step ~130 with no corresponding change in other sensors, indicating "
+    },
+    {
+      "idx": 58,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A single sensor (light blue line) exhibits a sharp, sustained drop of ~8 units at time step 0–1, while all other 50 sensors remain stable near zero with mi"
+    },
+    {
+      "idx": 59,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−3.5 to −4) occurs at ~time step 135 in one sensor (teal), followed immediately by a large negative spike in an orange sensor "
+    },
+    {
+      "idx": 60,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop in multiple sensors (especially the green and orange lines) at time step ~5–10—reaching values as low as −4—followed by recovery"
+    },
+    {
+      "idx": 61,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange sensor shows a sustained, monotonic upward drift from ~−0.2 to ~0.9 over 256 time steps—unlike all other sensors, which remain stable or exhibit"
+    },
+    {
+      "idx": 62,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop in the green sensor (to −4) at time step ~185 triggers cascading transient responses in multiple other sensors (orange, yellow, "
+    },
+    {
+      "idx": 63,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−4 to −2) in multiple sensors around time step 55–60—especially a near-instantaneous plunge in the teal sensor—followed by cor"
+    },
+    {
+      "idx": 64,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor traces exhibit stable, bounded behavior with no sudden spikes, drops, level shifts, or erratic oscillations—only minor noise and smooth drifts wi"
+    },
+    {
+      "idx": 65,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded behavior with no sudden spikes, drops, or propagating deviations—only minor noise and consistent level shifts (e."
+    },
+    {
+      "idx": 66,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor traces exhibit stable, bounded behavior with no sudden spikes, drops, level shifts, or erratic oscillations—only minor smooth fluctuations around"
+    },
+    {
+      "idx": 67,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded behavior with no sudden spikes, drops, level shifts, or erratic oscillations—only minor noise and slight drift wi"
+    },
+    {
+      "idx": 68,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A distinct, synchronized step-like drop occurs around time step 160–170 in the lower group of sensors (blue and light-blue lines), with magnitude ~0.2–0.3 "
+    },
+    {
+      "idx": 69,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded behavior with only minor noise and no abrupt spikes, level shifts, or propagating deviations across the 256 time "
+    },
+    {
+      "idx": 70,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A clear, localized positive spike occurs around time step 240–250 in the yellow line (near 0.0), followed by a brief upward jump in the light blue line, in"
+    },
+    {
+      "idx": 71,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded behavior with only minor noise and no sudden spikes, drops, level shifts, or propagating deviations across the 25"
+    },
+    {
+      "idx": 72,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A clear, sustained level shift occurs around time step 220 in the yellow and light-blue sensors (values rising from ~−0.1 to ~−0.05 and −0.2 to −0.15 respe"
+    },
+    {
+      "idx": 73,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded behavior with only minor noise and no abrupt spikes, level shifts, or propagating deviations across the 256 time "
+    },
+    {
+      "idx": 74,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor traces exhibit stable, smooth behavior with no sudden spikes, drops, level shifts, or erratic oscillations—only minor expected fluctuations aroun"
+    },
+    {
+      "idx": 75,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop occurs at time step ~150 across multiple sensors (notably orange, teal, and light blue), with the orange sensor showing a large "
+    },
+    {
+      "idx": 76,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: Two sharp, synchronized negative spikes (≈−4 to −2) occur around time steps 20–30 and 125–135 across multiple sensors (especially teal, orange, and blue), "
+    },
+    {
+      "idx": 77,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, large-magnitude drop (from ~−1.5 to −3.8) occurs at time step 0 in the teal sensor, followed by rapid stabilization of all sensors into new steady"
+    },
+    {
+      "idx": 78,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, piecewise-constant behavior with minor step-like transitions that are consistent across time and sensors, indicating norm"
+    },
+    {
+      "idx": 79,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All 51 sensors exhibit stable, near-constant behavior over 256 time steps—with only minor, localized step-like fluctuations (e.g., yellow line around t=200)"
+    },
+    {
+      "idx": 80,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−4 to −2) in the green sensor at ~t=180 precedes a large positive spike (~+2) in the orange sensor and correlated responses in"
+    },
+    {
+      "idx": 81,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−2.5 units) in multiple sensors (especially the green and orange lines) around time step 55–60, followed by a rapid rebound an"
+    },
+    {
+      "idx": 82,
+      "true_label": 0,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit smooth, gradual trends or stable plateaus with no sudden spikes, drops, level shifts, or erratic oscillations—consistent with nor"
+    },
+    {
+      "idx": 83,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange sensor shows a sustained, monotonic decline from ~1.1 to ~0.05 over 256 steps—unlike all other sensors which remain stable or exhibit only minor"
+    },
+    {
+      "idx": 84,
+      "true_label": 0,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange sensor shows a sustained, monotonic decline from ~0.55 to −0.5 over 256 time steps while other sensors remain stable or exhibit only minor noise"
+    },
+    {
+      "idx": 85,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations around fixed baselines with no sudden spikes, level shifts, or propagating deviations—consistent wit"
+    },
+    {
+      "idx": 86,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, or propagating deviations—consistent with normal oper"
+    },
+    {
+      "idx": 87,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or step-like changes within expected ranges, with no abrupt spikes, sustained drifts, or propagating"
+    },
+    {
+      "idx": 88,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels with no sudden spikes, drops, level shifts, or propagation of deviations—consistent"
+    },
+    {
+      "idx": 89,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop occurs around time step 140–150 across multiple sensors (especially the green and orange lines plunging to −4 and −1.7, respecti"
+    },
+    {
+      "idx": 90,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−3.5 to −4) occurs in multiple sensors (notably teal and orange) at time step ~10–15, followed by a partial recovery and persi"
+    },
+    {
+      "idx": 91,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A clear, sustained upward trend begins around time step 50 in the orange line (sensor), followed by gradual increases in the light blue and cyan lines, whi"
+    },
+    {
+      "idx": 92,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: The orange line shows a sustained, monotonic upward drift from ~0.3 to ~1.35 over 256 steps—unlike all other sensors—which violates expected stationarity a"
+    },
+    {
+      "idx": 93,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~2.5 units) occurs at time step ~235 in the green sensor first, followed immediately by a cascade of large negative excursions "
+    },
+    {
+      "idx": 94,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels within expected ranges—no sudden spikes, drops, level shifts, or propagation of dev"
+    },
+    {
+      "idx": 95,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations or steady levels within expected ranges—no sudden spikes, drops, level shifts, or propagation of dev"
+    },
+    {
+      "idx": 96,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensors exhibit stable, bounded oscillations around consistent baselines with no sudden spikes, level shifts, or propagating deviations—patterns appear "
+    },
+    {
+      "idx": 97,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: All sensor signals exhibit stable, bounded oscillations around consistent baselines with no sudden spikes, level shifts, or propagating deviations—indicatin"
+    },
+    {
+      "idx": 98,
+      "true_label": 1,
+      "prediction": 0,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: NO  \nCONFIDENCE: HIGH  \nREASONING: The plot shows three distinct sensor groups (upper: blue/orange/green near 0.6–0.7; middle: yellow/light blue near −0.1 to −0.2; lower: orange/blue near −0."
+    },
+    {
+      "idx": 99,
+      "true_label": 1,
+      "prediction": 1,
+      "confidence": "HIGH",
+      "raw_response": "ANOMALY: YES  \nCONFIDENCE: HIGH  \nREASONING: A sharp, synchronized drop (~−2 to −4) occurs at time step ~195–200 in multiple sensors (notably green and orange), followed by divergent recovery patterns"
+    }
+  ]
+}

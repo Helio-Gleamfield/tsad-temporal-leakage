@@ -1,0 +1,79 @@
+{
+  "dataset": "SWaT",
+  "n_sensors": 51,
+  "causal_graph": {
+    "n_nodes": 51,
+    "n_edges": 528,
+    "stage_flow": [
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5",
+      "P6"
+    ]
+  },
+  "detection": {
+    "window_index": 243381,
+    "ground_truth": "anomalous",
+    "anomalous_sensors": [
+      30,
+      33,
+      42,
+      39,
+      41,
+      26,
+      27,
+      40,
+      38,
+      34,
+      35,
+      44,
+      46,
+      5,
+      45,
+      28,
+      22,
+      37,
+      6,
+      17
+    ],
+    "top_z_scores": {
+      "30": 195554.265625,
+      "33": 195554.265625,
+      "42": 195554.265625,
+      "39": 11.966368675231934,
+      "41": 10.276488304138184,
+      "26": 9.043073654174805,
+      "27": 8.738496780395508,
+      "40": 8.208809852600098,
+      "38": 8.04878044128418,
+      "34": 7.405243396759033
+    }
+  },
+  "root_cause_analysis": [
+    {
+      "sensor": 26,
+      "score": 1.0
+    },
+    {
+      "sensor": 5,
+      "score": 1.0
+    }
+  ],
+  "propagation_paths": [
+    "S26 -> S27 -> S33",
+    "S26 -> S28 -> S33",
+    "S26 -> S29 -> S33",
+    "S26 -> S27 -> S34",
+    "S26 -> S28 -> S34"
+  ],
+  "explanation": {
+    "pattern_identification": "[VLM offline - prompt generated]",
+    "anomaly_characterization": "[VLM offline - prompt generated]",
+    "causal_root_cause": "Root cause candidates: [(26, 'S26', np.float32(1.0)), (5, 'S5', np.float32(1.0))]",
+    "propagation_path": "Paths: [[26, np.int64(27), np.int64(33)], [26, np.int64(28), np.int64(33)]]",
+    "recommendation": "[VLM offline - prompt generated]",
+    "raw_text": "[SYSTEM CONTEXT]\nYou are analyzing a water treatment cyber-physical system (SWaT testbed) with 6 stages:\nP1 (Raw Water Intake) → P2 (Chemical Dosing) → P3 (UF Feed) → P4 (Ultrafiltration) → P5 (Reverse Osmosis) → P6 (Distribution).\n\n[DETECTION RESULT]\nAnomaly detected with confidence score: 19555.426\n\n[VISUAL EVIDENCE]\nThe attached image shows the time series data for the anomalous window (256 time steps).\nPlease examine the visual patterns carefully.\n\n[CAUSAL GRAPH]\nThe known causal relationships between sensors are:\nSWaT Water Treatment Process: P1 -> P2 -> P2 -> P3 -> P3 -> P4 -> P4 -> P5 -> P5 -> P6\nDiscovered causal edges: 528 among 51 sensors\nStage flow is strictly sequential (no backflow possible)\n\n[ATTRIBUTION SCORES]\nThe causal attribution scores for the most affected sensors are:\n  Sensor 5 (S5): attribution = 0.4420\n  Sensor 30 (S30): attribution = 0.3000\n  Sensor 33 (S33): attribution = 0.3000\n  Sensor 42 (S42): attribution = 0.3000\n  Sensor 39 (S39): attribution = 0.3000\n  Sensor 41 (S41): attribution = 0.3000\n  Sensor 26 (S26): attribution = 0.2713\n  Sensor 27 (S27): attribution = 0.2622\n  Sensor 40 (S40): attribution = 0.2463\n  Sensor 38 (S38): attribution = 0.2415\n\n[ROOT CAUSE ANALYSIS]\nThe automated causal analysis identified these potential root cause sensors:\n  #1: Sensor 26 (S26) - score: 1.000\n  #2: Sensor 5 (S5) - score: 1.000\n\n[PROPAGATION PATH]\nThe likely anomaly propagation path is:\n  Path 1: S26 → S27 → S33\n  Path 2: S26 → S28 → S33\n  Path 3: S26 → S29 → S33\n\n\nPlease provide a structured analysis following the chain-of-thought reasoning:\n1. PATTERN IDENTIFICATION:\n2. ANOMALY CHARACTERIZATION:\n3. CAUSAL ROOT CAUSE:\n4. PROPAGATION PATH:\n5. RECOMMENDATION:"
+  }
+}

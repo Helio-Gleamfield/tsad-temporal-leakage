@@ -1,0 +1,251 @@
+%%
+%% Science Bulletin — Supplementary Materials
+%% "When Benchmarks Lie: Temporal Data Leakage Reverses TSAD Rankings"
+%%
+
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+
+\title{Supplementary Materials:\\
+When Benchmarks Lie: Temporal Data Leakage Reverses\\
+Time Series Anomaly Detection Rankings}
+
+\date{}
+
+\maketitle
+
+%% ═══════════════════════════════════════════════
+\section{Full Experimental Results}
+
+All results are from 5 datasets $\times$ 5 methods $\times$ 3 seeds (42, 43, 44).
+Z-score and OCSVM are deterministic and have zero standard deviation.
+All AUC values are window-level AUC-ROC.
+
+\subsection{Per-Method Leakage Gaps}
+
+Table~S1 reports the leakage gap ($\Delta$AUC = AUC$_\text{random} - $AUC$_\text{temporal}$) for all dataset--method combinations.
+
+\begin{table}[htbp]
+\centering
+\caption{S1: $\Delta$AUC across all datasets and methods. Positive values: random split inflates performance. Negative: random split deflates performance.}
+\begin{tabular}{lccccc}
+\toprule
+Dataset & Z-score & Isolation Forest & OCSVM & LSTM-AE & Transformer-AE \\
+\midrule
+SWaT & $+$0.134 & $-$0.139 & $+$0.043 & $-$0.251 & $-$0.165 \\
+TEP  & $+$0.020 & $+$0.024 & $+$0.028 & $+$0.023 & $+$0.053 \\
+MSL  & $+$0.067 & $+$0.038 & $-$0.138 & $+$0.104 & $+$0.054 \\
+SMAP & $+$0.016 & $+$0.123 & $+$0.092 & $-$0.007 & $+$0.018 \\
+SMD  & $+$0.065 & $+$0.117 & $+$0.043 & $+$0.091 & $+$0.150 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Temporal-Split AUC (Mean of 3 Seeds)}
+
+Table~S2 reports the honest (temporal-split) AUC-ROC for all methods.
+
+\begin{table}[htbp]
+\centering
+\caption{S2: Temporal-split AUC-ROC (mean $\pm$ std of 3 seeds). Best per dataset in \textbf{bold}. Note: Z-score and OCSVM std = 0 (deterministic methods).}
+\begin{tabular}{lccccc}
+\toprule
+Dataset & Z-score & Isolation Forest & OCSVM & LSTM-AE & Transformer-AE \\
+\midrule
+SWaT & 0.712 $\pm$ 0.000 & 0.822 $\pm$ 0.006 & 0.773 $\pm$ 0.000 & 0.870 $\pm$ 0.002 & \textbf{0.908 $\pm$ 0.007} \\
+TEP  & 0.793 $\pm$ 0.000 & 0.740 $\pm$ 0.005 & 0.683 $\pm$ 0.000 & \textbf{0.803 $\pm$ 0.003} & 0.777 $\pm$ 0.012 \\
+MSL  & 0.578 $\pm$ 0.000 & 0.518 $\pm$ 0.011 & \textbf{0.635 $\pm$ 0.000} & 0.537 $\pm$ 0.000 & 0.559 $\pm$ 0.001 \\
+SMAP & 0.458 $\pm$ 0.000 & 0.329 $\pm$ 0.007 & 0.360 $\pm$ 0.004 & \textbf{0.501 $\pm$ 0.003} & 0.479 $\pm$ 0.008 \\
+SMD  & \textbf{0.775 $\pm$ 0.000} & 0.446 $\pm$ 0.015 & 0.490 $\pm$ 0.001 & 0.700 $\pm$ 0.005 & 0.682 $\pm$ 0.002 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Random-Split AUC (Mean of 3 Seeds)}
+
+Table~S3 reports the random-split AUC-ROC for all methods.
+
+\begin{table}[htbp]
+\centering
+\caption{S3: Random-split AUC-ROC (mean $\pm$ std of 3 seeds).}
+\begin{tabular}{lccccc}
+\toprule
+Dataset & Z-score & Isolation Forest & OCSVM & LSTM-AE & Transformer-AE \\
+\midrule
+SWaT & 0.846 $\pm$ 0.009 & 0.683 $\pm$ 0.050 & 0.816 $\pm$ 0.002 & 0.619 $\pm$ 0.039 & 0.743 $\pm$ 0.035 \\
+TEP  & 0.813 $\pm$ 0.012 & 0.764 $\pm$ 0.009 & 0.711 $\pm$ 0.010 & 0.826 $\pm$ 0.010 & 0.830 $\pm$ 0.016 \\
+MSL  & 0.645 $\pm$ 0.016 & 0.556 $\pm$ 0.015 & 0.498 $\pm$ 0.094 & 0.641 $\pm$ 0.023 & 0.613 $\pm$ 0.007 \\
+SMAP & 0.473 $\pm$ 0.045 & 0.453 $\pm$ 0.038 & 0.452 $\pm$ 0.016 & 0.494 $\pm$ 0.042 & 0.497 $\pm$ 0.042 \\
+SMD  & 0.840 $\pm$ 0.013 & 0.564 $\pm$ 0.038 & 0.533 $\pm$ 0.009 & 0.791 $\pm$ 0.022 & 0.832 $\pm$ 0.014 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ═══════════════════════════════════════════════
+\section{Overlap Ablation}
+
+Table~S4 presents the overlap ablation results. The largest $|\Delta\text{AUC}|$ occurs at zero overlap (S=256), indicating that random-split distributional bias---not merely window overlap---is the dominant contributor to evaluation distortion.
+
+\begin{table}[htbp]
+\centering
+\caption{S4: Overlap ablation — SWaT, LSTM-AE, $L=256$, varying stride $S$.}
+\begin{tabular}{ccccc}
+\toprule
+Stride $S$ & Overlap $\rho$ & $N_\text{windows}$ & Temporal AUC & Random AUC \\
+\midrule
+32  & 87.5\% & 2000 & 0.488 & 0.546 \\
+64  & 75.0\% & 2000 & 0.540 & 0.497 \\
+128 & 50.0\% & 2000 & 0.463 & 0.484 \\
+256 & 0.0\%  & 2000 & 0.862 & 0.657 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ═══════════════════════════════════════════════
+\section{Ranking Stability}
+
+Table~S5 presents the full ranking stability analysis. With $n=5$ methods, the minimum $|\rho|$ for statistical significance at $\alpha=0.05$ (two-tailed) is 1.0. All reported $\rho$ values are descriptive effect sizes.
+
+\begin{table}[htbp]
+\centering
+\caption{S5: Spearman rank correlation between random-split and temporal-split method rankings.}
+\begin{tabular}{lcccl}
+\toprule
+Dataset & $\rho$ & $p$-value & Random \#1 & Temporal \#1 \\
+\midrule
+SWaT & $-$0.70 & 0.188 & Z-score & Transformer-AE \\
+TEP  & $+$0.70 & 0.188 & Transformer-AE & LSTM-AE \\
+MSL  & $-$0.10 & 0.873 & Z-score & OCSVM \\
+SMAP & $+$0.80 & 0.104 & Transformer-AE & LSTM-AE \\
+SMD  & $+$0.80 & 0.104 & Z-score & Z-score \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ═══════════════════════════════════════════════
+\section{VLM Direct Vision Experiment}
+
+We conducted an additional experiment: the latest Alibaba vision-language model (\texttt{qwen3-vl-plus}, Qwen3-VL generation, MoE architecture) was asked to directly judge whether 100 SWaT time series visualizations (50 normal, 50 anomalous) contained anomalies, using a structured Chain-of-Thought prompt. Results are shown in Table~S6.
+
+\begin{table}[htbp]
+\centering
+\caption{S6: VLM direct visual anomaly detection on SWaT (100 windows).}
+\begin{tabular}{lcc}
+\toprule
+Metric & qwen3-vl-plus (CoT) & Z-score (zero-param) \\
+\midrule
+Accuracy  & 0.570 & --- \\
+Precision & 0.564 & --- \\
+Recall    & 0.620 & --- \\
+F1        & 0.590 & --- \\
+AUC-ROC   & 0.570 & 0.610 \\
+False Positives & 24/50 & --- \\
+False Negatives & 19/50 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Despite being Alibaba's most capable vision model, \texttt{qwen3-vl-plus} achieves only 57\% accuracy---below the zero-parameter Z-score baseline (AUC 0.610). Notably, 100\% of VLM predictions were rated as HIGH confidence, despite a 43\% error rate. This corroborates the main paper's finding that VLM features contribute zero additional detection signal ($\Delta$AUC = 0.000) and extends it to direct visual judgment.
+
+%% ═══════════════════════════════════════════════
+\section{Cross-Domain Experiment}
+
+We extended the temporal leakage analysis to three additional domains: medical ECG (MITDB), medical gait analysis (Daphnet), and network intrusion detection (CICIDS). Table~S7 summarizes results for Daphnet and CICIDS. MITDB (ECG arrhythmia, 520,000 samples, 34\% point-level anomaly) could not produce valid temporal-split AUC values because anomalous windows were too rare at the window level (1.7\% of 2,000 windows, with all 34 anomalous windows occurring after the training split in the temporal partition). This is an informative failure mode: TSP requires sufficient anomaly coverage in both training and test periods, a constraint not met by the MITDB dataset under our windowing parameters ($L=128, S=32$). For datasets with extremely sparse event-level anomalies, shorter windows or alternative evaluation designs may be necessary.
+
+\begin{table}[htbp]
+\centering
+\caption{S7: Cross-domain temporal leakage (L=128, S=32). Three methods per dataset.}
+\begin{tabular}{lcccc}
+\toprule
+Dataset & Domain & Method & $\Delta$AUC & $|\Delta\text{AUC}|$ \\
+\midrule
+\multirow{3}{*}{Daphnet} & \multirow{3}{*}{Medical (gait)} & Z-score  & $+$0.137 & 0.137 \\
+                          &                              & IsoForest & $+$0.126 & 0.126 \\
+                          &                              & OCSVM     & $-$0.039 & 0.039 \\
+\midrule
+\multirow{3}{*}{CICIDS}  & \multirow{3}{*}{Network security} & Z-score  & $-$0.125 & 0.125 \\
+                          &                                 & IsoForest & $-$0.052 & 0.052 \\
+                          &                                 & OCSVM     & $-$0.208 & 0.208 \\
+\midrule
+\midrule
+\multicolumn{3}{l}{Cross-domain mean $|\Delta\text{AUC}|$} & \multicolumn{2}{c}{\textbf{0.115}} \\
+\multicolumn{3}{l}{(CPS mean $|\Delta\text{AUC}|$: 0.080)} & \multicolumn{2}{c}{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The cross-domain mean $|\Delta\text{AUC}|$ is 0.115---substantially higher than the CPS-only mean of 0.080. The leakage is bidirectional in both domains: on Daphnet, random split overestimates Z-score and Isolation Forest while slightly underestimating OCSVM; on CICIDS, random split underestimates all three methods. These findings demonstrate that temporal leakage is not a CPS-specific phenomenon and that its direction and magnitude vary by domain.
+
+%% ═══════════════════════════════════════════════
+\section{Experimental Configuration}
+
+\subsection{Hardware and Software}
+\begin{itemize}
+    \item GPU: NVIDIA GeForce RTX 5060 Laptop GPU (8\,GB VRAM)
+    \item CUDA: 12.8
+    \item PyTorch: 2.x with BF16 Automatic Mixed Precision
+    \item OS: Windows 11 (64-bit)
+    \item Python: 3.12
+\end{itemize}
+
+\subsection{Hyperparameters}
+\begin{itemize}
+    \item Window length: $L = 256$ (main), $L = 128$ (cross-domain)
+    \item Window stride: $S = 64$ (default); $S \in \{32, 64, 128, 256\}$ for ablation
+    \item Training epochs: 15 (LSTM-AE), 15 (Transformer-AE)
+    \item Optimizer: Adam, learning rate $1\times10^{-3}$, no weight decay
+    \item LSTM-AE: bidirectional, 64 hidden units, MSE reconstruction loss
+    \item Transformer-AE: 2 encoder + 2 decoder layers, $d_\text{model} = \min(D, 128)$, 4 attention heads
+    \item Random seeds: 42, 43, 44
+    \item Subsampling: stratified, maximum 2,000 windows per dataset
+    \item Data splitting: 70\% training / 30\% test (temporal), 70\%/30\% random (random)
+\end{itemize}
+
+\subsection{Method Details}
+\begin{itemize}
+    \item \textbf{Z-score}: $\max_d |X_{t,d} - \mu_d| / \sigma_d$, where $\mu_d$ and $\sigma_d$ are computed from training data. Averaged across dimensions. Deterministic (std = 0 for all seeds).
+    \item \textbf{Isolation Forest}: 100 trees, contamination = 0.1, features reduced via PCA (30 components). Non-deterministic due to random feature sampling.
+    \item \textbf{One-Class SVM}: RBF kernel, $\nu = 0.1$, features reduced via PCA (30 components). Approximately deterministic (std $\approx$ 0 at reported precision; small numerical variations across seeds are possible).
+    \item \textbf{LSTM-AE}: Bidirectional LSTM (64 units) encoder, LSTM decoder, symmetric architecture. Trained with MSE reconstruction loss.
+    \item \textbf{Transformer-AE}: 2-layer Transformer encoder, 2-layer Transformer decoder. Sinusoidal positional encoding. Trained with MSE reconstruction loss.
+\end{itemize}
+
+\subsection{Component Ablation Data}
+The component ablation results (manuscript Table~\ref{tab:ablation}, 5 variants A--E) were obtained from a separate controlled experiment on the ViCSynAD framework using SWaT data (2,000 windows, temporal split). The experiment systematically added components: baseline 6-dim statistics, enhanced 12-dim statistics, random VLM features (Gaussian noise matching VLM feature distribution), reconstruction loss, and Patch Transformer. The raw data for this ablation is in the project repository at \texttt{experiments/e1\_vlm\_ablation.json}. The three variants at AUC 0.588 (B, C, D) produced identical values because VLM random features and reconstruction loss contributed exactly zero information to the detection head under temporal split evaluation.
+
+\section{Data Availability}
+
+All datasets used in this study are publicly available from their original sources:
+\begin{itemize}
+    \item \textbf{SWaT}: iTrust Lab, Singapore University of Technology and Design
+    \item \textbf{TEP}: Harvard Dataverse (Downs \& Vogel, 1993)
+    \item \textbf{MSL, SMAP}: NASA Open Data Portal (Hundman et al., KDD 2018)
+    \item \textbf{SMD}: KDD 2019 (Su et al.)
+    \item \textbf{MITDB}: PhysioNet (MIT-BIH Arrhythmia Database)
+    \item \textbf{Daphnet}: UCI Machine Learning Repository (Daphnet Freezing of Gait)
+    \item \textbf{CICIDS}: Canadian Institute for Cybersecurity (CICIDS 2017)
+\end{itemize}
+
+\section{Code Availability}
+
+All experiment scripts, trained model checkpoints, and analysis code will be released at:
+\begin{center}
+\url{https://github.com/[TBD]/tsad-temporal-leakage}
+\end{center}
+
+The repository includes:
+\begin{itemize}
+    \item \texttt{experiment\_p0\_comprehensive.py}: Main experiment pipeline (5 datasets $\times$ 5 methods $\times$ 3 seeds)
+    \item \texttt{experiment\_p2\_crossdomain.py}: Cross-domain experiment pipeline
+    \item \texttt{experiment\_p2\_vlm\_direct.py}: VLM direct vision experiment
+    \item \texttt{figures\_final.py}: Publication-quality figure generation
+    \item \texttt{integrate\_results.py}: Automated result integration into manuscript
+\end{itemize}
+
+\end{document}

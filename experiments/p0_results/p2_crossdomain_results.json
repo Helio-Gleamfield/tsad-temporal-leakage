@@ -1,0 +1,68 @@
+{
+  "Medical_ECG_MITDB106": {
+    "name": "Medical_ECG_MITDB106",
+    "n_samples": 520000,
+    "n_dims": 2,
+    "anom_pct": 0.34342116117477417,
+    "n_windows": 2000,
+    "n_anom_windows": 34,
+    "L": 128,
+    "S": 32,
+    "zscore": {
+      "temporal_auc": NaN,
+      "random_auc": 0.8030560271646858,
+      "delta_auc": NaN
+    },
+    "lstm_ae": {
+      "temporal_auc_mean": NaN,
+      "temporal_auc_std": NaN,
+      "random_auc_mean": 0.7364502700687137,
+      "random_auc_std": 0.06967103859382053,
+      "delta_auc": NaN
+    }
+  },
+  "Medical_Gait_Daphnet": {
+    "name": "Medical_Gait_Daphnet",
+    "n_samples": 58880,
+    "n_dims": 9,
+    "anom_pct": 0.07172214984893799,
+    "n_windows": 1836,
+    "n_anom_windows": 184,
+    "L": 128,
+    "S": 32,
+    "zscore": {
+      "temporal_auc": 0.8818267419962335,
+      "random_auc": 0.6545756017587004,
+      "delta_auc": -0.227251140237533
+    },
+    "lstm_ae": {
+      "temporal_auc_mean": 0.9260200878844946,
+      "temporal_auc_std": 0.0009009855677594387,
+      "random_auc_mean": 0.7083003597985456,
+      "random_auc_std": 0.027700852189811526,
+      "delta_auc": -0.21771972808594908
+    }
+  },
+  "Network_cicids": {
+    "name": "Network_cicids",
+    "n_samples": 414844,
+    "n_dims": 30,
+    "anom_pct": 0.1222025603055954,
+    "n_windows": 2000,
+    "n_anom_windows": 1537,
+    "L": 128,
+    "S": 32,
+    "zscore": {
+      "temporal_auc": 0.2684983314794216,
+      "random_auc": 0.21329376943314998,
+      "delta_auc": -0.05520456204627161
+    },
+    "lstm_ae": {
+      "temporal_auc_mean": 0.3805635891731554,
+      "temporal_auc_std": 0.0002065760219085255,
+      "random_auc_mean": 0.6484459708644069,
+      "random_auc_std": 0.006113984853399276,
+      "delta_auc": 0.2678823816912515
+    }
+  }
+}

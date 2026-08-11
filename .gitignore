@@ -1,0 +1,63 @@
+# ── Secrets & API Keys ──
+.env
+*.pem
+*.key
+credentials.json
+secrets.yaml
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Jupyter ──
+.ipynb_checkpoints/
+
+# ── Model Checkpoints ──
+checkpoints/
+
+# ── Data (downloaded separately) ──
+data/
+datasets/
+
+# ── OS Junk ──
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# ── IDE ──
+.idea/
+.vscode/
+*.sublime-*
+
+# ── LaTeX Auxiliary ──
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex*
+*.synctex.gz
+
+# ── Legacy Drafts (not the authoritative manuscript) ──
+paper/manuscript_draft.md
+paper/manuscript_v2_planA.md
+PAPER_EXPANSION_PLAN.md
+RESEARCH_DESIGN.md
+
+# ── Temp/Output ──
+*.tmp
+temp/
+tmp/

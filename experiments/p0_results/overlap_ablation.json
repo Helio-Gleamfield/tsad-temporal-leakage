@@ -1,0 +1,30 @@
+{
+  "S32": {
+    "overlap_pct": 87.5,
+    "temporal_auc": 0.7623,
+    "random_auc": 0.6769,
+    "delta_auc": -0.0854,
+    "n_windows": 2000
+  },
+  "S64": {
+    "overlap_pct": 75.0,
+    "temporal_auc": 0.8818,
+    "random_auc": 0.7909,
+    "delta_auc": -0.0909,
+    "n_windows": 2000
+  },
+  "S128": {
+    "overlap_pct": 50.0,
+    "temporal_auc": 0.8469,
+    "random_auc": 0.705,
+    "delta_auc": -0.1419,
+    "n_windows": 2000
+  },
+  "S256": {
+    "overlap_pct": 0,
+    "temporal_auc": 0.8272,
+    "random_auc": 0.7657,
+    "delta_auc": -0.0615,
+    "n_windows": 1757
+  }
+}

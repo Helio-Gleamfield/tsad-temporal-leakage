@@ -1,0 +1,93 @@
+{
+  "new_methods": {
+    "swat": {
+      "PCA_recon": {
+        "temporal_auc": 0.6095328282828282,
+        "random_auc": 0.7492208841522066,
+        "delta_auc": 0.13968805586937838
+      },
+      "KNN_dist": {
+        "temporal_auc": 0.5731271043771043,
+        "random_auc": 0.6499172790581356,
+        "delta_auc": 0.07679017468103122
+      },
+      "LOF": {
+        "temporal_auc": 0.6124526515151516,
+        "random_auc": 0.6607287137855412,
+        "delta_auc": 0.04827606227038961
+      },
+      "Mahalanobis": {
+        "temporal_auc": 0.6165824915824916,
+        "random_auc": 0.668192835981686,
+        "delta_auc": 0.05161034439919443
+      }
+    },
+    "msl": {
+      "PCA_recon": {
+        "temporal_auc": 0.0,
+        "random_auc": 0.8125,
+        "delta_auc": 0.8125
+      },
+      "KNN_dist": {
+        "temporal_auc": 0.0,
+        "random_auc": 0.875,
+        "delta_auc": 0.875
+      },
+      "LOF": {
+        "temporal_auc": 1.0,
+        "random_auc": 1.0,
+        "delta_auc": 0.0
+      },
+      "Mahalanobis": {
+        "temporal_auc": 0.0,
+        "random_auc": 0.78125,
+        "delta_auc": 0.78125
+      }
+    },
+    "smap": {
+      "PCA_recon": {
+        "temporal_auc": null,
+        "random_auc": 1.0,
+        "delta_auc": null
+      },
+      "KNN_dist": {
+        "temporal_auc": null,
+        "random_auc": 1.0,
+        "delta_auc": null
+      },
+      "LOF": {
+        "temporal_auc": null,
+        "random_auc": 1.0,
+        "delta_auc": null
+      },
+      "Mahalanobis": {
+        "temporal_auc": null,
+        "random_auc": 0.5789473684210527,
+        "delta_auc": null
+      }
+    },
+    "smd": {
+      "PCA_recon": {
+        "temporal_auc": 0.8935483870967742,
+        "random_auc": 0.8386752136752137,
+        "delta_auc": -0.054873173421560506
+      },
+      "KNN_dist": {
+        "temporal_auc": 0.9096774193548386,
+        "random_auc": 0.8381410256410257,
+        "delta_auc": -0.07153639371381293
+      },
+      "LOF": {
+        "temporal_auc": 0.8264516129032259,
+        "random_auc": 0.7702991452991453,
+        "delta_auc": -0.05615246760408055
+      },
+      "Mahalanobis": {
+        "temporal_auc": 0.9012903225806452,
+        "random_auc": 0.9150641025641025,
+        "delta_auc": 0.013773779983457302
+      }
+    }
+  },
+  "n_methods": 9
+}
