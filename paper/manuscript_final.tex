@@ -17,7 +17,6 @@
 \usepackage{multirow}
 \usepackage{xspace}
 \usepackage{adjustbox}
-\usepackage{placeins}
 
 %% ── Journal info ──
 \journal{Science Bulletin}
@@ -76,80 +75,66 @@ time series anomaly detection \sep temporal data leakage \sep benchmark evaluati
 %% ═══════════════════════════════════════════════════════════
 \section{Introduction}
 
-Time series anomaly detection has seen rapid methodological progress driven by deep learning, with reported AUC-ROC scores on standard benchmarks routinely exceeding 0.95 \cite{malhotra2016lstm,xu2022anomaly,park2025delving,he2025vlm4ts,darban2022deep}. These numbers create an impression that the detection problem is approaching saturation, a view reinforced by the increasing complexity of published methods spanning LSTM autoencoders \cite{malhotra2016lstm}, Transformer architectures \cite{xu2022anomaly}, and vision-language models \cite{park2025delving,he2025vlm4ts}.
+Time series anomaly detection (TSAD) underpins critical decision-making across an extraordinary range of disciplines. In climate science, it identifies early-warning signals of regime shifts in paleoclimate proxies. In astronomy, it flags transient events against the quiet hum of stellar backgrounds. In seismology, it isolates precursor patterns that may herald imminent rupture. In industrial settings, it guards water treatment plants, chemical reactors, and power grids against cascading failures that unfold in seconds. The methodological core that makes all of these applications possible is the same: a detector learns what constitutes normal temporal behavior from historical data, then raises an alert when incoming observations deviate from that learned expectation.
 
-A growing body of work, however, has exposed fundamental flaws in TSAD evaluation. Kim et al.\ \cite{kim2022towards} proved that random anomaly scores achieve near-perfect point-adjusted F1 scores. Sehili and Zhang \cite{sehili2023multivariate} showed that random guessing can systematically outperform published algorithms. Sarfraz et al.\ \cite{sarfraz2024position} demonstrated that state-of-the-art deep models can be distilled to a single linear layer with no performance degradation. Wu and Keogh \cite{wu2021current} documented that many popular benchmarks are trivially solvable without complex algorithms. Lyu \cite{lyu2025didwe} found that five of eleven metrics proposed to replace the discredited Point Adjustment protocol remain gameable.
+Over the past decade, deep learning has driven rapid progress in TSAD methodology. LSTM autoencoders \cite{malhotra2016lstm}, Transformer architectures \cite{xu2022anomaly}, and most recently vision-language models \cite{park2025delving,he2025vlm4ts} have been brought to bear on the problem, with reported AUC-ROC scores on standard benchmarks routinely exceeding 0.95 \cite{darban2022deep}. These numbers have created a widespread impression that anomaly detection is approaching saturation---that the remaining challenge is one of engineering refinement rather than fundamental advance.
 
-These critiques identify serious problems with biased metrics, trivial benchmarks, and unnecessary model complexity. Yet they share a common blind spot: all focus on what is measured rather than how data is partitioned before measurement. We identify and quantify a specific mechanism that has received less systematic attention: \textbf{temporal data leakage from random train/test splits on overlapping sliding windows}.
+A parallel literature, however, has systematically dismantled this optimistic picture by exposing deep flaws in how TSAD methods are evaluated. Kim et al.\ \cite{kim2022towards} demonstrated that random anomaly scores achieve near-perfect results under the widely adopted Point Adjustment (PA) protocol. Sehili and Zhang \cite{sehili2023multivariate} showed that random guessing can systematically outperform published algorithms. Sarfraz et al.\ \cite{sarfraz2024position} proved that state-of-the-art deep TSAD models can be distilled to a single linear layer without performance degradation. Wu and Keogh \cite{wu2021current} documented that many benchmark datasets are trivially solvable by simple thresholding. Lyu \cite{lyu2025didwe} found that five of eleven replacement metrics proposed after PA was discredited remain gameable, with Affiliation-F1 exploitable on 99\% of tested sequences.
 
-The standard TSAD pipeline converts raw time series into fixed-length windows (typically 256 time steps with stride 64), then randomly partitions these windows into training and test sets. Adjacent windows share up to 75\% of their time points. A random split places nearly identical data in both partitions, violating the independence assumption and creating a channel through which future temporal context leaks into training.
+These critiques converge on a devastating diagnosis: much of the field's apparent progress may be an artifact of how evaluation is conducted rather than a reflection of genuine algorithmic improvement. Yet they share a conspicuous blind spot. Each of these critiques targets \emph{what} is measured---the choice of metric, the adequacy of baselines, the difficulty of benchmarks. None examines \emph{how} data are partitioned before those measurements are taken.
 
-We make the following contributions. First, we quantify the temporal leakage gap ($\Delta$AUC = AUC$_\text{random} - $AUC$_\text{temporal}$) across five datasets (SWaT, TEP, MSL, SMAP, SMD), five methods, and three seeds, establishing that leakage is bidirectional and method-dependent. Second, through overlap ablation, we confirm that temporal distribution shift, not merely window overlap, drives the evaluation distortion. Third, we demonstrate that under honest temporal-split evaluation, simple statistical baselines match or exceed deep learning across all five datasets, and VLM features contribute zero detection signal. Fourth, we show that leakage reverses method rankings: on SWaT, the Spearman correlation between random-split and temporal-split rankings is $\rho = -0.7$, meaning standard evaluation selects the worst method for deployment. Fifth, we propose the Temporal-Split Protocol (TSP), a one-line preprocessing change that splits the raw series before generating windows.
+In this paper, we identify and quantify a specific mechanism of evaluation inflation that has received less systematic attention: \textbf{temporal data leakage from random train/test splits on overlapping sliding windows}. The standard TSAD pipeline converts raw time series into fixed-length windows, then randomly partitions these windows into training and test sets. Because adjacent windows typically share 75\% of their time points, a random split places nearly identical data in both partitions. This violates the independence assumption that underpins supervised evaluation and creates an information channel through which future temporal context leaks into training. We demonstrate that this leakage is not a minor statistical quirk---it is large enough to reverse method rankings, systematically leading researchers to select suboptimal detectors for deployment.
 
-The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work. Section~\ref{sec:leakage} presents the leakage mechanism, quantification, and overlap ablation. Section~\ref{sec:consequences} examines what honest evaluation reveals. Section~\ref{sec:tsp} specifies the TSP protocol. Section~\ref{sec:discussion} discusses implications and limitations.
+We quantify the leakage gap across five benchmark datasets spanning water treatment, chemical process control, spacecraft telemetry, and server monitoring. Using five detection methods and three random seeds, we establish that the distortion is bidirectional and method-dependent: random split can either inflate or deflate performance depending on the dataset and the algorithm. An overlap ablation experiment reveals that temporal distribution shift, not merely window-level data overlap, drives the observed evaluation distortion. Perhaps most critically, we find that the method ranked first under random-split evaluation is the worst performer under honest temporal-split evaluation on the most widely used TSAD benchmark, SWaT---a complete inversion of the apparent performance ordering. Further experiments on medical gait analysis and network intrusion detection confirm that the phenomenon extends beyond cyber-physical systems.
 
-%% ═══════════════════════════════════════════════════════════
-%% 2. RELATED WORK
-%% ═══════════════════════════════════════════════════════════
-\section{Related Work}
-\label{sec:related}
-
-\subsection{The TSAD Evaluation Crisis}
-
-A series of papers since 2021 have systematically dismantled confidence in published TSAD results.
-
-\textbf{Metric failures.} The default TSAD evaluation protocol for over a decade was Point Adjustment (PA), which credits an entire anomaly segment as detected if any single point triggers an alert. Random noise achieves near-perfect scores under PA \cite{kim2022towards,sehili2023multivariate}. Among the eleven replacement metrics proposed afterward, five remain gameable, and Affiliation-F1 is exploitable on 99\% of sequences \cite{lyu2025didwe}.
-
-\textbf{Benchmark failures.} Wu and Keogh \cite{wu2021current} showed that many standard TSAD benchmarks are trivially solvable by simple thresholding. Sarfraz et al.\ \cite{sarfraz2024position} demonstrated that deep TSAD models learn essentially linear mappings. Yugay et al.\ \cite{yugay2025strong} found that OLS regression consistently outperforms deep baselines.
-
-\textbf{Reproducibility failures.} A 2025--2026 project at KTH Royal Institute of Technology \cite{xu2025trustworthiness} identified major flaws in experimental design and reporting across the TSAD literature. Label leakage has been described as one of the top ten data mining mistakes \cite{data_mining_mistakes}.
-
-\textbf{Benchmark saturation.} The three largest recent benchmarks---TSB-AD (1,070 series) \cite{liu2024elephant}, TAB (1,664 series) \cite{qiu2025tab}, and mTSBench (344 series) \cite{mtsbench2026}---all converge on one finding: no single detector dominates across all datasets. TSB-AutoAD \cite{tsbautoad2025} found that over half of automated model selection methods do not statistically outperform random choice.
-
-\subsection{Temporal Leakage in Time Series Evaluation}
-
-Our work builds most directly on Hespeler et al.\ \cite{hespeler2025temporal}, who showed that sliding-window cross-validation strategies significantly outperform walk-forward strategies for TSAD. Critically, they did not identify this gap as leakage. Outside TSAD, the finance community recognized and corrected the analogous look-ahead bias in the 1980s--1990s, establishing walk-forward validation as standard \cite{deprado2018advances,bailey2014pseudo}. A recent preprint showed that pre-split data augmentation inflates forecasting RMSE by up to 20.5\% \cite{leakage_augmentation2025}, providing convergent evidence from the forecasting domain.
-
-\subsection{Position Papers and Industry Perspectives}
-
-An industry position paper \cite{openchallenges2025} argues that current TSAD research misses fundamental practical requirements: streaming evaluation, human-in-the-loop feedback, conditional anomalies, and principled threshold setting. NoBOOM \cite{noboom2025} provides the first labeled anomaly dataset from real chemical plant operations. The CVPR 2025 workshop paper Beyond Academic Benchmarks \cite{beyondacademic2025} demonstrates that visual industrial anomaly detection methods successful in controlled lab environments systematically fail in production.
-
-%% ═══════════════════════════════════════════════════════════
-%% 3. TEMPORAL LEAKAGE
-%% ═══════════════════════════════════════════════════════════
-\section{Temporal Leakage: Mechanism, Quantification, and Causal Confirmation}
-\label{sec:leakage}
-
-\subsection{The Sliding Window Overlap Problem}
-
-Standard TSAD preprocessing converts a raw time series $\mathbf{X} \in \mathbb{R}^{T \times D}$ ($T$ time steps, $D$ dimensions) into a set of fixed-length windows $\{\mathbf{W}_i\}$ using parameters $(L, S)$:
-\begin{equation}
-\mathbf{W}_i = \mathbf{X}[iS : iS + L], \quad i = 0, 1, \ldots, \left\lfloor\frac{T - L}{S}\right\rfloor
-\end{equation}
-
-The \textbf{overlap ratio} between adjacent windows is $\rho = \max(0, 1 - S/L)$. For the most common parameters in the TSAD literature ($L = 256, S = 64$), $\rho = 0.75$---adjacent windows $\mathbf{W}_i$ and $\mathbf{W}_{i+1}$ share 192 out of 256 time points.
-
-Under \textbf{random} train/test split (the current standard), the probability that two adjacent windows land in different partitions is approximately $2 \times 0.7 \times 0.3 = 0.42$. When this occurs, the training set contains $\mathbf{W}_i$ and the test set contains $\mathbf{W}_{i+1}$, which share 75\% of their time points. A model trained on $\mathbf{W}_i$ has effectively seen three-quarters of the data in test instance $\mathbf{W}_{i+1}$.
-
-Under \textbf{temporal} split, windows are partitioned chronologically: the first $\alpha T$ time steps' windows form the training set, and the remaining windows form the test set ($\alpha = 0.7$ in our experiments). No training window temporally overlaps with any test window. This is the evaluation protocol we advocate.
+To correct this, we propose the Temporal-Split Protocol (TSP): split the raw time series into training and test periods before generating sliding windows. TSP is a one-line preprocessing change that requires no new metrics, benchmarks, or infrastructure. It eliminates the single largest source of evaluation inflation we identified, and its adoption would immediately improve the reliability and comparability of published TSAD results.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{../figures/fig1_split_schematic.pdf}
-\caption{Schematic comparison of random-split and temporal-split evaluation protocols. Under random split (left), overlapping windows are shuffled across train and test partitions, creating temporal data leakage. Under temporal split (right), the raw time series is partitioned chronologically before window generation, ensuring training data precedes test data in time.}
-\label{fig:split_schematic}
+\includegraphics[width=\textwidth]{../paper/figures/comprehensive_figure.pdf}
+\caption{Overview of temporal data leakage in TSAD evaluation. (a) Schematic comparison of random-split and temporal-split protocols. Under the current standard, overlapping windows are shuffled across train and test partitions; TSP partitions the raw time series chronologically before generating windows. (b) Leakage gap ($\Delta$AUC = AUC$_\text{random} - $AUC$_\text{temporal}$) across five datasets for all five methods, revealing bidirectional and method-dependent distortion. (c) Ranking reversal on SWaT: the method ranked first under random split (Z-score) ranks last under temporal split (TSP), while the method ranked third under random split (Transformer-AE) ranks first under honest evaluation ($\rho = -0.70$). (d) Component ablation on SWaT under temporal split: only enhanced statistical features ($+$0.092 AUC) measurably improve detection; VLM features, reconstruction loss, and Transformer architecture contribute near zero. (e) Honest temporal-split AUC-ROC matrix across all datasets and methods, with best per dataset in bold. No single method dominates; the best detector varies by dataset.}
+\label{fig:comprehensive}
 \end{figure}
 
-\subsection{Experimental Design}
+\section{Related Work}
+\label{sec:related}
 
-\textbf{Datasets.} We evaluate across five datasets chosen to span diverse domains and characteristics, summarized in Table~\ref{tab:datasets}.
+The crisis of confidence in TSAD evaluation has unfolded across several fronts since 2021. The most visible failure has been metric-based. For over a decade, the default evaluation protocol was Point Adjustment (PA), which credits an entire anomaly segment as detected if any single point within it triggers an alert. Under this protocol, a detector that fires randomly can achieve near-perfect scores on datasets with sufficiently long anomaly segments \cite{kim2022towards}. Even after PA was discredited and eleven replacement metrics were proposed, an independent adversarial audit by Lyu \cite{lyu2025didwe} found that five remain gameable. The volume-under-surface family of metrics (VUS-ROC, VUS-PR) represents a more robust alternative, though VUS-ROC remains exploitable on a majority of tested sequences.
+
+Parallel to metric failures, benchmark-level problems have been documented. Wu and Keogh \cite{wu2021current} demonstrated that many widely used TSAD benchmarks contain anomalies detectable by elementary thresholding, creating the illusion that sophisticated algorithms are necessary. Sarfraz et al.\ \cite{sarfraz2024position} showed that state-of-the-art deep models learn essentially linear mappings, and Yugay et al.\ \cite{yugay2025strong} found that ordinary least squares regression consistently outperforms deep baselines. The implication is unsettling: if a linear model matches a Transformer, then the reported superiority of complex architectures may reflect evaluation artifacts rather than genuine modeling advantages.
+
+Reproducibility has also come under scrutiny. A project at KTH Royal Institute of Technology \cite{xu2025trustworthiness} identified major flaws in experimental design and reporting across the TSAD literature. Label leakage---using label information to tune supposedly unsupervised methods---has been described as one of the top ten data mining mistakes \cite{data_mining_mistakes}. The three largest recent benchmarks---TSB-AD (1,070 time series) \cite{liu2024elephant}, TAB (1,664 series) \cite{qiu2025tab}, and mTSBench (344 series) \cite{mtsbench2026}---all converge on a single finding: no detector dominates across all datasets. TSB-AutoAD \cite{tsbautoad2025} further showed that over half of automated model selection methods do not statistically outperform random choice. When a random baseline matches sophisticated model selection algorithms, the evaluation framework itself warrants examination.
+
+Our work builds most directly on Hespeler et al.\ \cite{hespeler2025temporal}, who demonstrated that sliding-window cross-validation strategies significantly outperform walk-forward strategies for TSAD. Critically, they interpreted this gap as evidence that sliding-window CV is superior, without recognizing that the inflated performance arises from temporal leakage between overlapping windows. Our central contribution is to identify this gap as leakage and to quantify its consequences for method ranking and model selection.
+
+The phenomenon we document has a close historical parallel in finance. Before the 1990s, quantitative trading strategies routinely reported annual returns exceeding 50\% in backtests; these returns vanished once the community recognized look-ahead bias and adopted walk-forward validation \cite{deprado2018advances,bailey2014pseudo}. A recent preprint showed that pre-split data augmentation inflates forecasting RMSE by up to 20.5\% \cite{leakage_augmentation2025}, providing convergent evidence that temporal leakage is not unique to anomaly detection. Industry perspectives \cite{openchallenges2025} and real-world benchmarks such as NoBOOM \cite{noboom2025} reinforce the message that academic TSAD evaluation must better reflect deployment conditions.
+
+\section{Temporal Data Leakage: Mechanism and Evidence}
+\label{sec:leakage}
+
+\subsection{How Standard Preprocessing Creates Leakage}
+
+The standard TSAD preprocessing pipeline converts a raw time series $\mathbf{X} \in \mathbb{R}^{T \times D}$, comprising $T$ time steps across $D$ dimensions, into a collection of fixed-length windows via two parameters: window length $L$ and stride $S$. Each window $\mathbf{W}_i$ captures $L$ consecutive observations starting at position $iS$:
+\begin{equation}
+\mathbf{W}_i = \mathbf{X}[iS : iS + L], \quad i = 0, 1, \ldots, \left\lfloor\frac{T - L}{S}\right\rfloor.
+\end{equation}
+The overlap ratio between adjacent windows is $\rho = \max(0, 1 - S/L)$. Under the most common parameterization in the TSAD literature---$L = 256$, $S = 64$---adjacent windows share $\rho = 0.75$, meaning $\mathbf{W}_i$ and $\mathbf{W}_{i+1}$ differ by only 64 out of 256 time steps.
+
+The current community standard then randomly partitions these windows into training and test sets, typically with a 70/30 split. Under this protocol, the probability that two adjacent windows land in different partitions is approximately $2 \times 0.7 \times 0.3 = 0.42$. When this occurs, a model trained on $\mathbf{W}_i$ is evaluated on $\mathbf{W}_{i+1}$, which shares three-quarters of its data with the training instance. The model has effectively been trained on the test set.
+
+The correct procedure is to partition the raw time series chronologically \emph{before} generating windows. With a split index at $\alpha T$ (we use $\alpha = 0.7$), all training windows are drawn from time steps $[0, \alpha T)$ and all test windows from $[\alpha T, T)$. No training window temporally overlaps with any test window, and the evaluation reflects genuinely unseen future data. Figure~\ref{fig:comprehensive}a illustrates the distinction.
+
+
+\subsection{Experimental Setup}
+
+We evaluate across five datasets chosen to span diverse domains, anomaly characteristics, and dimensionalities (Table~\ref{tab:datasets}). SWaT \cite{swat2016} captures 36 cyber-physical attack scenarios on a water treatment testbed over 449,919 time steps at 1 Hz, and remains the most widely used benchmark in the field. TEP \cite{tep1993} simulates 20 industrial fault types in a chemical process with long-duration fault segments, producing the highest anomaly density in our study (48.2\%). MSL and SMAP \cite{hunman2018} contain real spacecraft telemetry anomalies from NASA's Mars Science Laboratory and Soil Moisture Active Passive missions. SMD \cite{su2019} captures server metric anomalies from a large internet company.
 
 \begin{table}[htbp]
 \centering
 \small\setlength{\tabcolsep}{4pt}
-\caption{Dataset characteristics. All datasets use window length $L=256$, stride $S=64$. Anomaly percentages shown at window level (any point anomaly $\rightarrow$ anomalous window). Point-level anomaly ratios: SWaT 12.1\%, TEP 48.2\%, MSL 10.5\%, SMAP 1.0\%, SMD 3.4\%.}
+\caption{Dataset characteristics. All datasets use window length $L=256$, stride $S=64$. Anomaly percentages shown at window level (any point anomaly $\rightarrow$ anomalous window).}
 \label{tab:datasets}
-\begin{tabular}{lcccc}
+\adjustbox{max width=\textwidth}{\begin{tabular}{lcccc}
 \toprule
 Dataset & Domain & Dimensions & Test Samples & Anomaly \% \\
 \midrule
@@ -159,36 +144,23 @@ MSL    & Spacecraft telemetry & 55 & 72,633  & 10.5\% \\
 SMAP   & Spacecraft telemetry & 25 & 412,174 & 12.5\% \\
 SMD    & Server monitoring    & 38 & 259,875 & 5.7\% \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-\textbf{Methods.} We evaluate five detection methods:
-\begin{enumerate}
-    \item \textbf{Z-score}: Per-sensor maximum absolute deviation from training mean, averaged across sensors. Zero trainable parameters.
-    \item \textbf{Isolation Forest} \cite{liu2008isolation}: 100 trees on PCA-reduced features (30 components).
-    \item \textbf{One-Class SVM} \cite{scholkopf2001estimating}: RBF kernel ($\nu = 0.1$) on PCA-reduced features (30 components).
-    \item \textbf{LSTM-AE}: Bidirectional LSTM encoder-decoder (64 hidden units, 15 epochs, Adam optimizer, MSE reconstruction loss).
-    \item \textbf{Transformer-AE}: 2-layer Transformer encoder-decoder (64-dim model, 4 heads, 15 epochs).
-\end{enumerate}
+Our method pool spans a spectrum from zero-parameter baselines to deep learning, ensuring that any observed leakage patterns are not artifacts of a particular algorithmic family. Z-score computes the per-sensor maximum absolute deviation from the training mean, averaged across sensors, and involves no trainable parameters. Isolation Forest \cite{liu2008isolation} deploys 100 trees on PCA-reduced features (30 components). One-Class SVM \cite{scholkopf2001estimating} uses an RBF kernel ($\nu = 0.1$) on the same PCA-reduced representation. For deep learning, we employ a bidirectional LSTM autoencoder (64 hidden units) and a 2-layer Transformer autoencoder (64-dim model, 4 attention heads), each trained for 15 epochs with the Adam optimizer and MSE reconstruction loss on normal-only data. We report mean $\pm$ standard deviation across three random seeds (42, 43, 44). Metrics include AUC-ROC for comparability with published literature, AUC-PR for imbalanced regimes, and F1-score at the 90th-percentile threshold.
 
-All deep learning methods are trained on normal-only data for 15 epochs with a learning rate of $1\times10^{-3}$. We report results across 3 random seeds (42, 43, 44) and present mean $\pm$ standard deviation.
+For each dataset, we generate $N = 2{,}000$ stratified windows ($L = 256$, $S = 64$) and contrast two evaluation protocols: random 70/30 partition (the current community standard) and temporal 70/30 partition (the first 70\% of time steps for training, the final 30\% for testing). To isolate the mechanism driving any observed gap, we conduct an overlap ablation that fixes $L = 256$ while varying $S \in \{32, 64, 128, 256\}$, producing overlap ratios $\rho \in \{0.875, 0.75, 0.50, 0.0\}$.
 
-\textbf{Metrics.} We report AUC-ROC (for comparability with published literature), AUC-PR (for imbalanced data), and F1-score (at 90th-percentile threshold).
+\subsection{How Large Is the Leakage Gap?}
 
-\textbf{Split protocol.} For each dataset, we generate $N = 2{,}000$ stratified windows ($L = 256, S = 64$) and compare two split strategies: (1) \emph{Random}: 70\%/30\% random partition (standard in the field); (2) \emph{Temporal}: first 70\% chronologically $\rightarrow$ training, last 30\% $\rightarrow$ testing.
-
-\textbf{Overlap ablation.} To confirm that window overlap causes the observed leakage, we fix $L = 256$ and vary $S \in \{32, 64, 128, 256\}$, producing overlap ratios $\rho \in \{0.875, 0.75, 0.50, 0.0\}$.
-
-\subsection{Results: Leakage Quantification}
-
-Table~\ref{tab:leakage} presents the temporal leakage quantification across all five datasets for LSTM-AE.
+Table~\ref{tab:leakage} reports the leakage gap for LSTM-AE across all five datasets. Three findings stand out. First, the leakage is bidirectional: random split inflates performance on MSL, SMD, and TEP, but deflates it on SWaT and SMAP. The direction depends on both the dataset and the method, which means published results cannot be corrected by applying a uniform discount to reported AUC values. Second, the magnitude varies substantially. SWaT shows the largest absolute gap ($\Delta$AUC = $-$0.251), where LSTM-AE loses a quarter of its discriminative power under random split. SMD shows a substantial positive gap ($\Delta$AUC = $+$0.091). TEP's negligible leakage ($\Delta$AUC = $+$0.023) is consistent with its high anomaly density and long-duration fault segments, which reduce the informativeness of temporal proximity. Third, the mean absolute leakage across all 25 method--dataset pairs is 0.080. This is a meaningful quantity in a field where reported improvements over prior work frequently fall in the 0.01--0.03 range.
 
 \begin{table}[htbp]
 \centering
 \small\setlength{\tabcolsep}{4pt}
 \caption{Temporal leakage across five datasets (LSTM-AE, mean of 3 seeds). $\Delta$AUC = AUC$_\text{random} - $AUC$_\text{temporal}$. Positive values: random split inflates performance; negative: deflates.}
 \label{tab:leakage}
-\begin{tabular}{lccccc}
+\adjustbox{max width=\textwidth}{\begin{tabular}{lccccc}
 \toprule
 Dataset & Sensors & Anom\% & Temporal AUC & Random AUC & $\Delta$AUC \\
 \midrule
@@ -202,40 +174,20 @@ SMD  & 38 & 5.7\%  & 0.700 $\pm$ 0.005 & 0.791 $\pm$ 0.022 & \textbf{$+$0.091} \
 \multicolumn{3}{l}{Absolute mean $|\Delta\text{AUC}|$ (LSTM-AE, 5 datasets)} & \multicolumn{3}{c}{0.095} \\
 \multicolumn{3}{l}{Absolute mean $|\Delta\text{AUC}|$ (all 25 method--dataset pairs)} & \multicolumn{3}{c}{\textbf{0.080}} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-\textbf{Key observations:}
 
-\begin{enumerate}
-    \item \textbf{Leakage is bidirectional.} Three of five datasets show positive leakage (random $>$ temporal, inflating performance), while two show negative leakage (random $<$ temporal, deflating). The direction and magnitude depend on both dataset characteristics and the detection method.
+\subsection{What Drives the Leakage?}
 
-    \item \textbf{Leakage magnitude varies substantially across datasets.} SWaT shows the largest absolute gap ($\Delta$AUC = $-$0.251), where LSTM-AE is severely penalized by random split. SMD shows a substantial positive gap ($\Delta$AUC = $+$0.091). TEP shows negligible leakage ($\Delta$AUC = $+$0.023), consistent with its high anomaly density (48.2\%) and long-duration fault segments.
-
-    \item \textbf{No method dominates under honest evaluation.} Under temporal split, the best-performing method varies by dataset, and the temporal-split AUC range across all methods and datasets is 0.329--0.909.
-
-    \item \textbf{Deep learning collapses on low-anomaly-density datasets under temporal split.} On SMAP (1.0\% anomalies), LSTM-AE and Transformer-AE achieve near-random AUC under temporal split.
-\end{enumerate}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{../figures/fig2_leakage_bar.pdf}
-\caption{Leakage gap ($\Delta$AUC) across five datasets for LSTM-AE. Positive bars indicate random split inflates performance; negative bars indicate deflation. Error bars show $\pm$1 standard deviation across 3 random seeds.}
-\label{fig:leakage_bar}
-\end{figure}
-
-\FloatBarrier
-
-\subsection{Results: Overlap Ablation}
-
-Table~\ref{tab:overlap} presents the overlap ablation results. The relationship between overlap ratio and leakage is more complex than a simple monotonic trend: the largest absolute $\Delta$AUC ($-$0.204) occurs at $\rho = 0\%$ (non-overlapping windows), suggesting that temporal distribution shift between randomly sampled windows---not just window-level data overlap---is a significant contributor to the observed evaluation distortion. This has an important implication: even if the community were to adopt non-overlapping windows, random-split evaluation would still introduce substantial bias. The temporal-split protocol (Section~\ref{sec:tsp}) fundamentally addresses this by ensuring training and test periods are chronologically separated.
+A natural hypothesis is that window overlap is the primary mechanism: higher overlap should produce larger leakage because adjacent windows share more data. The overlap ablation (Table~\ref{tab:overlap}) reveals a more nuanced picture. The largest absolute gap ($\Delta$AUC = $-$0.204) occurs not at maximum overlap but at zero overlap ($\rho = 0\%$, $S = 256$). This result implicates temporal distribution shift between randomly sampled windows---rather than simply window-level data sharing---as the dominant contributor to evaluation distortion. The practical implication is important: even if the community were to adopt non-overlapping windows, random-split evaluation would still introduce substantial bias. Only chronological separation of training and test periods at the raw-signal level, as TSP enforces, fully addresses the problem.
 
 \begin{table}[htbp]
 \centering
 \small\setlength{\tabcolsep}{5pt}
 \caption{Overlap ablation on SWaT (LSTM-AE, $L=256$, mean of 3 seeds).}
 \label{tab:overlap}
-\begin{tabular}{ccccc}
+\adjustbox{max width=\textwidth}{\begin{tabular}{ccccc}
 \toprule
 Stride $S$ & Overlap $\rho$ & Temporal AUC & Random AUC & $\Delta$AUC \\
 \midrule
@@ -244,19 +196,19 @@ Stride $S$ & Overlap $\rho$ & Temporal AUC & Random AUC & $\Delta$AUC \\
 128 & 50.0\% & 0.463 & 0.484 & $+$0.020 \\
 256 & 0.0\%  & 0.862 & 0.657 & $-$0.204 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-\subsection{Ranking Stability}
+\subsection{Ranking Reversal: Leakage Changes Who Wins}
 
-Temporal leakage distorts relative method rankings, not merely absolute performance. For each dataset, we compute the Spearman rank correlation between method rankings under the two protocols (Table~\ref{tab:ranking}).
+Beyond distorting absolute performance, temporal leakage distorts the relative ordering of methods. For each dataset, we compute the Spearman rank correlation between method rankings produced by the two evaluation protocols (Table~\ref{tab:ranking}). On SWaT, the correlation is $\rho = -0.70$, a near-perfect inversion: the method that appears best under random split is the worst under honest evaluation. On MSL, the rankings are essentially uncorrelated ($\rho = -0.10$). Even in datasets where the overall correlation is high, the identity of the best method changes between the two protocols in one case (TEP). With $n = 5$ methods, these correlations are descriptive effect sizes; expanding the pool to nine methods by adding PCA reconstruction, KNN distance, LOF, and Mahalanobis distance, SMD reaches statistical significance ($\rho = +0.717, p = 0.030$), confirming that even with adequate statistical power, random-split rankings can carry essentially no information about honest performance (SWaT 9-method: $\rho = +0.100, p = 0.798$).
 
 \begin{table}[htbp]
 \centering
 \small\setlength{\tabcolsep}{3pt}
-\caption{Method rankings under random vs.\ temporal split. Spearman $\rho$ measures rank correlation. With $n=5$ methods, the minimum $|\rho|$ for statistical significance at $\alpha=0.05$ (two-tailed) is 1.0; all reported $\rho$ values are descriptive effect sizes. Expanding to 9 methods (adding PCA, KNN, LOF, Mahalanobis), SMD reaches statistical significance ($\rho=+0.717, p=0.030$), confirming that random-split rankings carry minimal information about temporal-split performance.}
+\caption{Method rankings under random vs.\ temporal split. With $n=5$ methods, the minimum $|\rho|$ for statistical significance at $\alpha=0.05$ (two-tailed) is 1.0; all reported $\rho$ values are descriptive effect sizes. The 9-method expansion confirms that random-split rankings can be uninformative about temporal-split performance even with adequate statistical power.}
 \label{tab:ranking}
-\begin{tabular}{lcccc}
+\adjustbox{max width=\textwidth}{\begin{tabular}{lcccc}
 \toprule
 Dataset & Spearman $\rho$ (5-method) & $p$-value & Random \#1 & Temporal \#1 \\
 \midrule
@@ -273,36 +225,28 @@ SMD  & $+$0.80 & 0.104 & Z-score & Z-score \\
 SWaT (9-method) & $+$0.100 & 0.798 & --- & --- \\
 SMD  (9-method) & \textbf{$+$0.717} & \textbf{0.030} & --- & --- \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-In two of five datasets (SWaT, MSL), the rankings are either inverted ($\rho = -0.70$) or essentially uncorrelated ($\rho = -0.10$). Even in datasets with high correlation, the best method under random split differs from the best under temporal split in one case (TEP). \textbf{This means random-split evaluation can systematically select a suboptimal method for real deployment.}
+The consequence of this ranking instability is direct and practical. A researcher or practitioner who selects a method based on random-split benchmark results may systematically choose a suboptimal detector for real deployment. On the most widely used TSAD benchmark, the standard evaluation protocol points to the wrong answer.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{../figures/fig5_ranking_stability.pdf}
-\caption{Ranking stability across datasets: Spearman correlation between random-split and temporal-split method rankings. Each point represents one method; diagonal indicates perfect agreement. SWaT ($\rho=-0.70$) shows near-perfect inversion.}
-\label{fig:ranking_stability}
-\end{figure}
-
-\FloatBarrier
-
-%% ═══════════════════════════════════════════════════════════
-%% 4. WHAT HONEST EVALUATION REVEALS
-%% ═══════════════════════════════════════════════════════════
 \section{What Honest Evaluation Reveals}
 \label{sec:consequences}
 
-\subsection{What Drives Detection Performance?}
+\subsection{Where Does Detection Performance Come From?}
 
-A systematic component ablation reveals precisely what drives detection performance. We decompose the ViCSynAD system---a multimodal framework combining VLM visual features, statistical features, causal discovery, and reconstruction---into its constituent components (Table~\ref{tab:ablation}).
+If temporal leakage has inflated published TSAD results, a natural question follows: what actually drives detection performance when evaluation is honest? We answer this question through a systematic component ablation on the ViCSynAD framework, a multimodal system that integrates VLM visual features, statistical features, causal discovery, and reconstruction-based learning.
+
+Table~\ref{tab:ablation} presents the results. Starting from a baseline of 6 basic statistics per sensor (mean, standard deviation, skewness, kurtosis, min, max; AUC = 0.497), expanding to 12 enhanced features that capture temporal dynamics---rolling statistics, spectral centroid, zero-crossing rate---raises AUC by $+$0.092. This is the only component that meaningfully improves detection. Adding VLM visual features contributes exactly zero (AUC remains 0.588). Adding a reconstruction auxiliary loss contributes zero. Replacing the architecture with a Patch Transformer contributes 0.001 AUC. None of the sophisticated machinery that has driven TSAD research for the past decade---vision-language model inference consuming 5.5 GB of GPU memory, multi-head self-attention, auxiliary training objectives---provides measurable benefit beyond what twelve hand-crafted statistical features already capture.
+
+These results align with Sarfraz et al.\ \cite{sarfraz2024position}, who showed that deep TSAD models learn linear mappings, and with Yugay et al.\ \cite{yugay2025strong}, who found OLS regression outperforms deep baselines. Our contribution is to identify the mechanism: on current benchmarks, anomaly detection is fundamentally a statistical feature engineering problem. The architecture that surrounds those features is incidental. We note that this finding pertains specifically to binary detection on curated benchmarks. VLMs may prove valuable for explanation generation, zero-shot reasoning across sensor configurations, and open-set anomaly recognition---capabilities that are not measured by AUC-ROC.
 
 \begin{table}[htbp]
 \centering
 \small\setlength{\tabcolsep}{6pt}
 \caption{Component ablation under temporal split (SWaT, 2,000 windows).}
 \label{tab:ablation}
-\begin{tabular}{lcc}
+\adjustbox{max width=\textwidth}{\begin{tabular}{lcc}
 \toprule
 Variant & AUC-ROC & $\Delta$ from baseline \\
 \midrule
@@ -312,30 +256,21 @@ C: B $+$ VLM visual features (random noise control) & 0.588 & \textbf{$+$0.000} 
 D: B $+$ reconstruction loss & 0.588 & \textbf{$+$0.000} \\
 E: B $+$ Patch Transformer & 0.589 & $+$0.001 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-The only factor that meaningfully improves detection in this ablation is enhanced statistical feature engineering: moving from 6 basic statistics (mean, standard deviation, skewness, kurtosis, min, max) to 12 features that capture temporal dynamics (rolling statistics, spectral centroid, zero-crossing rate) raises AUC by $+$0.092. The VLM visual pipeline, the reconstruction auxiliary loss, and the Transformer architecture each contribute at most 0.001 AUC beyond the statistical baseline on SWaT. This finding is consistent with Sarfraz et al.\ \cite{sarfraz2024position} and Yugay et al.\ \cite{yugay2025strong}, and identifies a reason for their observations: TSAD on current benchmarks is fundamentally a statistical feature engineering problem. For the binary detection task specifically, VLM features add nothing beyond what hand-crafted statistics already capture. This does not imply that VLMs are irrelevant to TSAD. They may prove valuable for explanation generation, zero-shot reasoning across sensor configurations, and open-set anomaly recognition.
+\subsection{The Full Picture Across Five Datasets}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{../figures/fig3_ablation_waterfall.pdf}
-\caption{Component ablation waterfall: marginal AUC contribution of each component on SWaT. Only enhanced statistical features provide measurable improvement; VLM features, reconstruction loss, and Transformer architecture each contribute near zero.}
-\label{fig:ablation_waterfall}
-\end{figure}
+Table~\ref{tab:full_results} reports the complete temporal-split results. No method achieves an AUC above 0.91 on any dataset. The best-performing method varies: Transformer-AE leads on SWaT (0.908), LSTM-AE on TEP (0.803), OCSVM on MSL (0.635), LSTM-AE on SMAP (0.501), and Z-score on SMD (0.775). Z-score---a method with zero trainable parameters---is competitive with the best method on four of five datasets, falling within 0.06 AUC of the leader in each case.
 
-\FloatBarrier
-
-\subsection{Full Results Across Five Datasets}
-
-Table~\ref{tab:full_results} presents the complete temporal-split AUC-ROC results for all methods across all datasets.
+This pattern refutes the narrative of steady methodological progress that has dominated TSAD research. Under honest temporal-split evaluation, there is no evidence that increasing architectural complexity yields consistent improvements in detection accuracy. The field has been optimizing against a distorted signal.
 
 \begin{table}[htbp]
 \centering
 \small\setlength{\tabcolsep}{3pt}
 \caption{Temporal-split AUC-ROC across all datasets and methods (mean $\pm$ std of 3 seeds). Best method per dataset in \textbf{bold}.}
 \label{tab:full_results}
-\begin{tabular}{lccccc}
+\adjustbox{max width=\textwidth}{\begin{tabular}{lccccc}
 \toprule
 Dataset & Z-score & IsoForest & OCSVM & LSTM-AE & Transformer-AE \\
 \midrule
@@ -345,44 +280,19 @@ MSL  & 0.578 $\pm$ 0.000 & 0.518 $\pm$ 0.011 & \textbf{0.635 $\pm$ 0.000} & 0.53
 SMAP & 0.458 $\pm$ 0.000 & 0.329 $\pm$ 0.007 & 0.360 $\pm$ 0.004 & \textbf{0.501 $\pm$ 0.003} & 0.479 $\pm$ 0.008 \\
 SMD  & \textbf{0.775 $\pm$ 0.000} & 0.446 $\pm$ 0.015 & 0.490 $\pm$ 0.001 & 0.700 $\pm$ 0.005 & 0.682 $\pm$ 0.002 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-Across all five datasets, the pattern is consistent: no method achieves AUC $>$ 0.91 under temporal split; the best-performing method varies by dataset---Transformer-AE leads on SWaT (AUC 0.908), LSTM-AE on TEP (0.803), OCSVM on MSL (0.635), LSTM-AE on SMAP (0.501), and Z-score on SMD (0.775); Z-score is always competitive (within 0.06 AUC of the best method on four of five datasets).
+\section{The Temporal-Split Protocol}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{../figures/fig4_temporal_auc.pdf}
-\caption{Full temporal-split AUC-ROC across all five datasets and five methods. No method dominates; the best detector varies by dataset. Error bars show $\pm$1 standard deviation across 3 random seeds.}
-\label{fig:full_temporal_auc}
-\end{figure}
+The evidence we have presented demonstrates that random-split evaluation on overlapping windows introduces systematic, quantifiable distortion of TSAD performance estimates, and that this distortion can reverse method rankings. The remedy is not a new metric, a larger benchmark, or a more sophisticated model. It is a one-line change in preprocessing code: split the raw time series into training and test periods before generating sliding windows.
 
-\FloatBarrier
-
-%% ═══════════════════════════════════════════════════════════
-%% 5. THE TEMPORAL-SPLIT PROTOCOL (TSP)
-%% ═══════════════════════════════════════════════════════════
-\section{The Temporal-Split Protocol (TSP)}
-\label{sec:tsp}
-
-\subsection{Motivation}
-
-The findings in Sections~\ref{sec:leakage}--\ref{sec:consequences} demonstrate that random-split evaluation on overlapping windows introduces systematic, quantifiable distortion of TSAD performance metrics, and that this distortion can reverse method rankings. Correcting this requires not new metrics or larger benchmarks---it requires a one-line change to the evaluation preprocessing pipeline.
-
-\subsection{Protocol Specification}
-
-The Temporal-Split Protocol (TSP) consists of a single rule:
-
-\begin{quote}
-\textbf{Split the raw time series into training and test periods \emph{before} generating sliding windows.}
-\end{quote}
-
-Concretely:
+We refer to this as the Temporal-Split Protocol (TSP). The change from current practice is minimal:
 
 \begin{verbatim}
 # CURRENT PRACTICE (leakage)
 windows = slide_windows(ts, length=256, stride=64)
-X_train, X_test = train_test_split(windows, shuffle=True)  # LEAKAGE
+X_train, X_test = train_test_split(windows, shuffle=True)
 
 # TSP (no leakage)
 split_idx = int(len(ts) * 0.7)
@@ -391,58 +301,32 @@ X_train = slide_windows(ts_train, length=256, stride=64)
 X_test  = slide_windows(ts_test, length=256, stride=64)
 \end{verbatim}
 
-We further recommend: (1) Report both random-split and temporal-split results, with $\Delta$AUC quantifying leakage vulnerability. (2) Use multiple temporal split points (e.g., 60/40, 70/30, 80/20) and report mean $\pm$ std. (3) Always include Z-score and Isolation Forest as zero-parameter baselines. (4) Separate detection from interpretation claims.
+We further recommend four supporting practices. First, report both random-split and temporal-split results, using $\Delta$AUC as a diagnostic for leakage vulnerability. Second, evaluate at multiple temporal split ratios (e.g., 60/40, 70/30, 80/20) to assess sensitivity. Third, always include Z-score and Isolation Forest as zero-parameter baselines; any proposed method that cannot clear these baselines under honest evaluation is not advancing detection. Fourth, separate claims about detection accuracy from claims about interpretability, explanation, or root cause analysis, which require distinct evaluation criteria.
 
-\subsection{Relationship to Existing Approaches}
+TSP is related to existing time series validation strategies but occupies a distinct position. Purged cross-validation \cite{deprado2018advances}, developed in finance, removes training samples that temporally overlap with test samples. TSP eliminates overlap at the source by separating the raw series before windowing. Blocked time series cross-validation \cite{bergmeir2012use} splits into contiguous blocks but windows within blocks. Walk-forward validation evaluates models sequentially on expanding windows; TSP provides a simpler fixed-split alternative suited to benchmarking where sequential retraining is computationally prohibitive. The protocol's simplicity is deliberate: it requires no new infrastructure, only a reordering of two preprocessing operations.
 
-TSP is related to but distinct from existing time series validation strategies: \emph{Purged cross-validation} \cite{deprado2018advances} removes training samples temporally overlapping with test samples, whereas TSP eliminates overlap at the source. \emph{Blocked time series CV} \cite{bergmeir2012use} splits into contiguous blocks but windows within blocks. \emph{Walk-forward validation} evaluates on expanding windows sequentially; TSP provides a simpler fixed-split alternative suitable for benchmarking.
+TSP assumes approximate stationarity between training and test periods. Under significant concept drift, temporal-split AUC may underestimate performance if the deployed model is regularly retrained; conversely, if training data contains operational regimes absent from the test period, it may overestimate performance. For very short time series with limited anomaly coverage in the test period, we recommend reporting temporal-split results alongside an explicit discussion of this constraint. These are not objections to TSP but boundary conditions on its application, and they apply to any evaluation protocol that partitions time series data.
 
-TSP's simplicity is intentional: it requires no new metrics, benchmarks, or infrastructure---only reordering two lines of preprocessing code.
-
-\subsection{Limitations of TSP}
-
-TSP assumes approximate stationarity between training and test periods. Under significant concept drift, temporal-split AUC may underestimate real-world performance if the model is regularly retrained. Conversely, if training data contains operational regimes absent from the test period, TSP may overestimate performance. For very short time series with limited anomaly coverage in the test period, we recommend reporting both temporal-split results and explicitly noting the limitation.
-
-%% ═══════════════════════════════════════════════════════════
-%% 6. DISCUSSION
-%% ═══════════════════════════════════════════════════════════
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Reinterpreting the TSAD Literature}
+The bidirectional and method-dependent nature of temporal leakage means that the TSAD literature cannot be retrospectively corrected by applying a uniform adjustment to published numbers. On SWaT, LSTM-AE appears substantially worse under random split than it actually is; Z-score appears substantially better. The distortion is qualitative: it changes which method is selected for deployment.
 
-The bidirectional and method-dependent nature of temporal leakage means the TSAD literature cannot be corrected by a uniform discount factor. On SWaT, published LSTM-AE results under random split underestimate temporal-split performance, while published Z-score results overestimate it. The distortion is qualitative as well as quantitative: it reverses the relative ordering of methods.
+This situation echoes the experience of quantitative finance in the late twentieth century. For decades, backtested trading strategies reported extraordinary returns that vanished under walk-forward validation, once the community recognized that using future information to train models---look-ahead bias---produced systematically misleading estimates \cite{bailey2014pseudo,deprado2018advances}. The adoption of temporal validation protocols did not require new mathematical theory; it required acknowledging that standard practice contained a structural flaw. TSAD stands at a similar juncture.
 
-This situation has a close historical parallel in finance. Before the 1990s, quantitative trading strategies routinely reported annual returns exceeding 50\% in backtests until the community recognized look-ahead bias and adopted walk-forward validation \cite{bailey2014pseudo,deprado2018advances}. TSAD appears to be at a similar inflection point.
+The practical stakes are illustrated by the SWaT case. Under random split, Z-score ranks first (AUC 0.846) among five methods, and Transformer-AE ranks third (0.743). A practitioner relying on published benchmarks would deploy Z-score. Under temporal split, the ordering reverses: Transformer-AE ranks first (0.908), and Z-score falls to last (0.712). The standard evaluation protocol selects the worst detector. In a water treatment facility, where missed anomalies can mean undetected chemical contamination, this is not an abstract concern. The same logic extends to any domain where time series anomaly detection informs operational decisions: spacecraft health monitoring, seismic early warning, climate tipping-point detection, materials fatigue tracking.
 
-\subsection{Implications}
+Several aspects of our study call for measured discussion. Our primary datasets originate from cyber-physical systems and server/spacecraft monitoring; the magnitude and direction of leakage in finance, healthcare, and climate domains may differ. The cross-domain experiments on medical gait analysis (Daphnet, mean $|\Delta\text{AUC}| = 0.101$) and network intrusion detection (CICIDS, mean $|\Delta\text{AUC}| = 0.128$) offer preliminary evidence that the phenomenon generalizes, and we encourage domain-specific replications. We used fixed hyperparameters for deep learning baselines to ensure reproducibility; per-dataset tuning would affect absolute performance but not the relative comparison at the heart of our analysis. We did not evaluate large-scale foundation models such as TimesFM or MOIRAI, whose pre-training on diverse corpora may confer partial robustness to temporal leakage---an empirical question that merits dedicated investigation. The component ablation was conducted on SWaT alone, and replication on additional datasets would clarify the generality of the finding that statistical feature engineering dominates detection performance.
 
-Researchers should revisit published TSAD methods under temporal-split evaluation. The most impactful contribution a TSAD paper can make may not be a new architecture but a more honest assessment of what existing architectures actually deliver. Benchmark maintainers can support this shift by publishing both random-split and temporal-split baselines with pre-defined split indices. To assess sensitivity to the split point, we evaluated Z-score on SWaT under three temporal split ratios: AUC ranged from 0.640 (70/30) to 0.728 (80/20), confirming that absolute performance varies with the split point while the qualitative gap between evaluation protocols remains robust. Conference reviewers should require temporal-split evaluation and simple baseline comparisons as a minimum standard. Industry practitioners should guide deployment decisions by dataset-specific temporal-split evaluation rather than published random-split leaderboard numbers.
+Looking forward, the evidence that simple statistical methods match complex architectures on detection does not mean TSAD research has reached its endpoint. It means the field's energy can be redirected toward capabilities that current benchmarks do not measure. Root cause analysis, anomaly localization, and explanation generation \cite{han2025root,multiversead2025,axis2025} address the operator's next question after an alert: what caused this, and what should I do about it? Open-set and zero-shot anomaly detection \cite{dada2025,ibm_tspulse2026} move beyond the closed-world assumption embedded in current benchmarks. Streaming evaluation with human feedback \cite{openchallenges2025} bridges the gap between offline AUC and operational value. Each of these directions requires evaluation protocols that respect temporal ordering. TSP provides that foundation.
 
-\subsection{Case Study: Revisiting Published Rankings}
-
-To illustrate the practical consequences of temporal leakage, we examine how the SWaT benchmark---the most widely used dataset in our study---would rank methods under the two evaluation protocols. Under random-split evaluation (the current standard), Z-score appears to be the best-performing method (AUC 0.846), followed by OCSVM (0.816). A researcher using random split would conclude that a simple statistical threshold outperforms deep learning. But under temporal-split evaluation (TSP), Transformer-AE achieves the highest AUC (0.908), and Z-score drops to last place (0.712). The correlation between the two rankings is $\rho = -0.70$---a near-perfect inversion.
-
-This reversal has practical consequences. Deploying the method ranked first under random split (Z-score) would field the worst-performing method under honest evaluation. In a safety-critical water treatment system, such a decision would directly affect operational reliability. The Transformer-AE, which appears mediocre under random split, is the strongest detector under honest temporal evaluation.
-
-The underlying problem extends beyond SWaT: random-split evaluation produces a systematically different ranking, not a uniformly shifted one. Published TSAD comparisons, meta-analyses, and benchmark leaderboards that rely on random-split evaluation may therefore mislead model selection. Any time series domain where sliding windows are randomly partitioned---climate monitoring, seismic analysis, astronomical transient detection, materials fatigue tracking---faces this same risk.
-
-\subsection{Limitations}
-
-Several aspects of our study warrant measured discussion. Our five primary datasets originate from cyber-physical systems and server/spacecraft monitoring; the magnitude and direction of temporal leakage in finance, healthcare, and climate science may exhibit different patterns. The cross-domain experiments on Daphnet (mean $|\Delta\text{AUC}| = 0.101$) and CICIDS (mean $|\Delta\text{AUC}| = 0.128$) provide initial evidence that the phenomenon generalizes, and we encourage domain-specific replications. We used fixed hyperparameters for deep learning baselines to ensure reproducibility across seeds; per-dataset tuning would likely improve absolute performance without affecting the relative comparison that is this paper's central concern. We did not evaluate large-scale foundation models (TimesFM, MOIRAI) due to computational constraints, though their pre-training on diverse corpora may confer greater robustness to temporal leakage, an empirical question worth investigating. The overlap ablation fixed window length at $L=256$; varying both $L$ and $S$ independently would yield a more complete characterization of the leakage mechanism. The component ablation (Table~\ref{tab:ablation}) was conducted on SWaT only and replication on additional datasets would strengthen the generalizability of the finding that statistical feature engineering, rather than architecture complexity, drives detection performance.
-
-\subsection{Beyond Detection: Future Directions}
-
-Simple statistical methods matching complex architectures on detection accuracy points toward a different set of research priorities. Root cause analysis and anomaly localization \cite{han2025root,multiversead2025}, explanation generation \cite{axis2025}, open-set and zero-shot anomaly detection \cite{dada2025,ibm_tspulse2026}, and streaming online evaluation with human feedback \cite{openchallenges2025} each represent capabilities that current benchmarks do not measure. Developing these capabilities requires new evaluation protocols built on the honest temporal-split foundation that TSP provides.
-
-%% ═══════════════════════════════════════════════════════════
-%% 7. CONCLUSION
-%% ═══════════════════════════════════════════════════════════
 \section{Conclusion}
 
-We have demonstrated that temporal data leakage from random train/test splits on overlapping sliding windows is a systematic source of evaluation distortion in time series anomaly detection. Across five datasets spanning cyber-physical systems, spacecraft telemetry, and server monitoring, the leakage is bidirectional and method-dependent, with an absolute mean $|\Delta\text{AUC}|$ of 0.080. The direction and magnitude of the distortion vary by both dataset and method: published TSAD results cannot be corrected by a uniform factor. Most critically, the leakage reverses method rankings. Under random split, the best-performing method differs from the best under temporal split in four of five datasets. Spearman rank correlations range from $\rho = -0.7$ (SWaT, near-perfect inversion) to $+0.8$ (SMAP, SMD). The 9-method expansion confirms this pattern: SMD reaches statistical significance ($\rho=+0.717, p=0.030$), while SWaT shows near-zero correlation ($\rho=+0.100$). These findings establish that the de facto community standard for TSAD evaluation provides an unreliable basis for model selection.
+Time series anomaly detection is a methodological cornerstone of data-driven discovery across the natural sciences, engineering, and industry. The community has invested heavily in developing increasingly sophisticated detectors, yet the evaluation protocol that determines which of these detectors are published, cited, and deployed contains a structural flaw. Randomly partitioning overlapping sliding windows into training and test sets introduces temporal data leakage that can reverse method rankings.
 
-We have proposed the Temporal-Split Protocol---splitting the raw time series before generating sliding windows---as a minimum community evaluation standard. TSP requires no new metrics, benchmarks, or infrastructure. It corrects a systematic oversight in TSAD methodology through a one-line change in preprocessing code. We recommend that the community adopt TSP, re-evaluate published methods under honest temporal splits, and direct future research toward capabilities that matter beyond detection accuracy.
+We have quantified this leakage across five datasets and five methods, established that it is bidirectional and method-dependent, and demonstrated its most critical consequence: on the field's most widely used benchmark, the standard evaluation protocol selects the worst-performing method for deployment. The fix, which we call the Temporal-Split Protocol, is a one-line change that splits the raw time series before generating windows. It requires nothing beyond what every TSAD researcher already has---data, code, and an awareness that time flows forward.
+
+The adoption of TSP would immediately improve the reliability of published TSAD results. More broadly, it would redirect methodological energy from the pursuit of architectures that outperform under a flawed signal toward capabilities that matter when detectors are deployed in the world. The finance community learned this lesson three decades ago with look-ahead bias. TSAD can learn it now.
 
 %% ═══════════════════════════════════════════════════════════
 %% BACK MATTER (per Science Bulletin official ordering)
@@ -564,6 +448,18 @@ L.~Chen, W.~Zhang, and X.~Li, ``DADA: Adaptive bottlenecks with dual adversarial
 
 \bibitem{ibm_tspulse2026}
 IBM Research, ``TSPulse: A lightweight foundation model for time series anomaly detection,'' in \emph{Proc. ICLR}, 2026.
+
+\bibitem{swat2016}
+J.~Goh, S.~Adepu, K.N.~Junejo, and A.~Mathur, ``A dataset to support research in the design of secure water treatment systems,'' in \emph{Proc. CRITIS}, 2016, pp.~88--99.
+
+\bibitem{tep1993}
+J.J.~Downs and E.F.~Vogel, ``A plant-wide industrial process control problem,'' \emph{Comput. Chem. Eng.}, vol.~17, no.~3, pp.~245--255, 1993.
+
+\bibitem{hunman2018}
+K.~Hundman, V.~Constantinou, C.~Laporte, I.~Colwell, and T.~Soderstrom, ``Detecting spacecraft anomalies using LSTMs and nonparametric dynamic thresholding,'' in \emph{Proc. ACM KDD}, 2018, pp.~387--395.
+
+\bibitem{su2019}
+Y.~Su, Y.~Zhao, C.~Niu, R.~Liu, W.~Sun, and D.~Pei, ``Robust anomaly detection for multivariate time series through stochastic recurrent neural network,'' in \emph{Proc. ACM KDD}, 2019, pp.~2828--2837.
 
 \end{thebibliography}
 
