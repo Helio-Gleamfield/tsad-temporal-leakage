@@ -16,6 +16,8 @@
 \usepackage{color}
 \usepackage{multirow}
 \usepackage{xspace}
+\usepackage{adjustbox}
+\usepackage{placeins}
 
 %% ── Journal info ──
 \journal{Science Bulletin}
@@ -33,9 +35,9 @@
 
 %% ── Affiliations ──
 \affiliation[hnu]{organization={College of Finance and Statistics, Hunan University},
-            addressline={Lushan South Road, Yuelu District},
+            addressline={No. 109, Shijiachong, Yuelu District},
             city={Changsha},
-            postcode={410082},
+            postcode={410006},
             state={Hunan},
             country={China}}
 
@@ -131,12 +133,20 @@ Under \textbf{random} train/test split (the current standard), the probability t
 
 Under \textbf{temporal} split, windows are partitioned chronologically: the first $\alpha T$ time steps' windows form the training set, and the remaining windows form the test set ($\alpha = 0.7$ in our experiments). No training window temporally overlaps with any test window. This is the evaluation protocol we advocate.
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{../figures/fig1_split_schematic.pdf}
+\caption{Schematic comparison of random-split and temporal-split evaluation protocols. Under random split (left), overlapping windows are shuffled across train and test partitions, creating temporal data leakage. Under temporal split (right), the raw time series is partitioned chronologically before window generation, ensuring training data precedes test data in time.}
+\label{fig:split_schematic}
+\end{figure}
+
 \subsection{Experimental Design}
 
 \textbf{Datasets.} We evaluate across five datasets chosen to span diverse domains and characteristics, summarized in Table~\ref{tab:datasets}.
 
 \begin{table}[htbp]
 \centering
+\small\setlength{\tabcolsep}{4pt}
 \caption{Dataset characteristics. All datasets use window length $L=256$, stride $S=64$. Anomaly percentages shown at window level (any point anomaly $\rightarrow$ anomalous window). Point-level anomaly ratios: SWaT 12.1\%, TEP 48.2\%, MSL 10.5\%, SMAP 1.0\%, SMD 3.4\%.}
 \label{tab:datasets}
 \begin{tabular}{lcccc}
@@ -175,7 +185,8 @@ Table~\ref{tab:leakage} presents the temporal leakage quantification across all 
 
 \begin{table}[htbp]
 \centering
-\caption{Temporal leakage across five datasets (LSTM-AE, mean of 3 seeds). $\Delta$AUC = AUC$_\text{random} - $AUC$_\text{temporal}$. Positive values indicate inflated performance under random split; negative values indicate deflated performance.}
+\small\setlength{\tabcolsep}{4pt}
+\caption{Temporal leakage across five datasets (LSTM-AE, mean of 3 seeds). $\Delta$AUC = AUC$_\text{random} - $AUC$_\text{temporal}$. Positive values: random split inflates performance; negative: deflates.}
 \label{tab:leakage}
 \begin{tabular}{lccccc}
 \toprule
@@ -206,12 +217,22 @@ SMD  & 38 & 5.7\%  & 0.700 $\pm$ 0.005 & 0.791 $\pm$ 0.022 & \textbf{$+$0.091} \
     \item \textbf{Deep learning collapses on low-anomaly-density datasets under temporal split.} On SMAP (1.0\% anomalies), LSTM-AE and Transformer-AE achieve near-random AUC under temporal split.
 \end{enumerate}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{../figures/fig2_leakage_bar.pdf}
+\caption{Leakage gap ($\Delta$AUC) across five datasets for LSTM-AE. Positive bars indicate random split inflates performance; negative bars indicate deflation. Error bars show $\pm$1 standard deviation across 3 random seeds.}
+\label{fig:leakage_bar}
+\end{figure}
+
+\FloatBarrier
+
 \subsection{Results: Overlap Ablation}
 
 Table~\ref{tab:overlap} presents the overlap ablation results. The relationship between overlap ratio and leakage is more complex than a simple monotonic trend: the largest absolute $\Delta$AUC ($-$0.204) occurs at $\rho = 0\%$ (non-overlapping windows), suggesting that temporal distribution shift between randomly sampled windows---not just window-level data overlap---is a significant contributor to the observed evaluation distortion. This has an important implication: even if the community were to adopt non-overlapping windows, random-split evaluation would still introduce substantial bias. The temporal-split protocol (Section~\ref{sec:tsp}) fundamentally addresses this by ensuring training and test periods are chronologically separated.
 
 \begin{table}[htbp]
 \centering
+\small\setlength{\tabcolsep}{5pt}
 \caption{Overlap ablation on SWaT (LSTM-AE, $L=256$, mean of 3 seeds).}
 \label{tab:overlap}
 \begin{tabular}{ccccc}
@@ -232,6 +253,7 @@ Temporal leakage distorts relative method rankings, not merely absolute performa
 
 \begin{table}[htbp]
 \centering
+\small\setlength{\tabcolsep}{3pt}
 \caption{Method rankings under random vs.\ temporal split. Spearman $\rho$ measures rank correlation. With $n=5$ methods, the minimum $|\rho|$ for statistical significance at $\alpha=0.05$ (two-tailed) is 1.0; all reported $\rho$ values are descriptive effect sizes. Expanding to 9 methods (adding PCA, KNN, LOF, Mahalanobis), SMD reaches statistical significance ($\rho=+0.717, p=0.030$), confirming that random-split rankings carry minimal information about temporal-split performance.}
 \label{tab:ranking}
 \begin{tabular}{lcccc}
@@ -256,6 +278,15 @@ SMD  (9-method) & \textbf{$+$0.717} & \textbf{0.030} & --- & --- \\
 
 In two of five datasets (SWaT, MSL), the rankings are either inverted ($\rho = -0.70$) or essentially uncorrelated ($\rho = -0.10$). Even in datasets with high correlation, the best method under random split differs from the best under temporal split in one case (TEP). \textbf{This means random-split evaluation can systematically select a suboptimal method for real deployment.}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{../figures/fig5_ranking_stability.pdf}
+\caption{Ranking stability across datasets: Spearman correlation between random-split and temporal-split method rankings. Each point represents one method; diagonal indicates perfect agreement. SWaT ($\rho=-0.70$) shows near-perfect inversion.}
+\label{fig:ranking_stability}
+\end{figure}
+
+\FloatBarrier
+
 %% ═══════════════════════════════════════════════════════════
 %% 4. WHAT HONEST EVALUATION REVEALS
 %% ═══════════════════════════════════════════════════════════
@@ -268,6 +299,7 @@ A systematic component ablation reveals precisely what drives detection performa
 
 \begin{table}[htbp]
 \centering
+\small\setlength{\tabcolsep}{6pt}
 \caption{Component ablation under temporal split (SWaT, 2,000 windows).}
 \label{tab:ablation}
 \begin{tabular}{lcc}
@@ -283,7 +315,16 @@ E: B $+$ Patch Transformer & 0.589 & $+$0.001 \\
 \end{tabular}
 \end{table}
 
-The only factor that meaningfully improves detection in this ablation is enhanced statistical feature engineering: moving from 6 basic statistics (mean, standard deviation, skewness, kurtosis, min, max) to 12 features that capture temporal dynamics (rolling statistics, spectral centroid, zero-crossing rate) raises AUC by $+$0.092. The VLM visual pipeline, the reconstruction auxiliary loss, and the Transformer architecture each contribute at most 0.001 AUC beyond the statistical baseline on SWaT. This finding is consistent with Sarfraz et al.\ \cite{sarfraz2024position} and Yugay et al.\ \cite{yugay2025strong}, and identifies a reason for their observations: TSAD on current benchmarks is fundamentally a statistical feature engineering problem. For the binary detection task specifically, VLM features add nothing beyond what hand-crafted statistics already capture. This does not imply that VLMs are irrelevant to TSAD. They may prove valuable for explanation generation, zero-shot reasoning across sensor configurations, and open-set anomaly recognition, tasks that are distinct from binary detection on curated benchmarks.
+The only factor that meaningfully improves detection in this ablation is enhanced statistical feature engineering: moving from 6 basic statistics (mean, standard deviation, skewness, kurtosis, min, max) to 12 features that capture temporal dynamics (rolling statistics, spectral centroid, zero-crossing rate) raises AUC by $+$0.092. The VLM visual pipeline, the reconstruction auxiliary loss, and the Transformer architecture each contribute at most 0.001 AUC beyond the statistical baseline on SWaT. This finding is consistent with Sarfraz et al.\ \cite{sarfraz2024position} and Yugay et al.\ \cite{yugay2025strong}, and identifies a reason for their observations: TSAD on current benchmarks is fundamentally a statistical feature engineering problem. For the binary detection task specifically, VLM features add nothing beyond what hand-crafted statistics already capture. This does not imply that VLMs are irrelevant to TSAD. They may prove valuable for explanation generation, zero-shot reasoning across sensor configurations, and open-set anomaly recognition.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{../figures/fig3_ablation_waterfall.pdf}
+\caption{Component ablation waterfall: marginal AUC contribution of each component on SWaT. Only enhanced statistical features provide measurable improvement; VLM features, reconstruction loss, and Transformer architecture each contribute near zero.}
+\label{fig:ablation_waterfall}
+\end{figure}
+
+\FloatBarrier
 
 \subsection{Full Results Across Five Datasets}
 
@@ -291,6 +332,7 @@ Table~\ref{tab:full_results} presents the complete temporal-split AUC-ROC result
 
 \begin{table}[htbp]
 \centering
+\small\setlength{\tabcolsep}{3pt}
 \caption{Temporal-split AUC-ROC across all datasets and methods (mean $\pm$ std of 3 seeds). Best method per dataset in \textbf{bold}.}
 \label{tab:full_results}
 \begin{tabular}{lccccc}
@@ -307,6 +349,15 @@ SMD  & \textbf{0.775 $\pm$ 0.000} & 0.446 $\pm$ 0.015 & 0.490 $\pm$ 0.001 & 0.70
 \end{table}
 
 Across all five datasets, the pattern is consistent: no method achieves AUC $>$ 0.91 under temporal split; the best-performing method varies by dataset---Transformer-AE leads on SWaT (AUC 0.908), LSTM-AE on TEP (0.803), OCSVM on MSL (0.635), LSTM-AE on SMAP (0.501), and Z-score on SMD (0.775); Z-score is always competitive (within 0.06 AUC of the best method on four of five datasets).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{../figures/fig4_temporal_auc.pdf}
+\caption{Full temporal-split AUC-ROC across all five datasets and five methods. No method dominates; the best detector varies by dataset. Error bars show $\pm$1 standard deviation across 3 random seeds.}
+\label{fig:full_temporal_auc}
+\end{figure}
+
+\FloatBarrier
 
 %% ═══════════════════════════════════════════════════════════
 %% 5. THE TEMPORAL-SPLIT PROTOCOL (TSP)
